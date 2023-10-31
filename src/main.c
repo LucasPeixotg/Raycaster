@@ -62,8 +62,10 @@ int initialize_window(SDL_Window** window, SDL_Renderer** renderer) {
         return FALSE;
     }
     
-    if(FIRST_PERSON)
+    if(FIRST_PERSON) {
         SDL_SetRelativeMouseMode(SDL_TRUE);
+        SDL_SetRenderDrawBlendMode(*renderer, SDL_BLENDMODE_BLEND);
+    }
 
     return TRUE;
 }
@@ -136,7 +138,6 @@ void render_camera(SDL_Renderer* renderer) {
     */
     float intersection[2];
     float angle_off =  FOV / RAYS_NUMBER;
-    float stripe_width = WINDOW_WIDTH / RAYS_NUMBER;
 
     SDL_SetRenderDrawColor(renderer, 255, 255,255,255);
     float smallest_intersection[4] = { 0 , 0 , INFINITY, player.angle}; 
@@ -156,17 +157,14 @@ void render_camera(SDL_Renderer* renderer) {
         }
 
         if(smallest_intersection[2] != INFINITY) {
-            float color = smallest_intersection[2] > 360? 0 : (1 - smallest_intersection[2] /360) * 255;
-            SDL_SetRenderDrawColor(renderer, color, color, color, 255);
+            float color = smallest_intersection[2] > 400? 0.01 : (1 - smallest_intersection[2] /400);
+            SDL_SetRenderDrawColor(renderer, 141*color, 170*color, 145*color, 255);
             if(FIRST_PERSON) {
                 float height = WINDOW_HEIGHT / (smallest_intersection[2] / WALL_SIZE);
-                SDL_Rect rect = {
-                    (int) WINDOW_WIDTH - stripe_width*i,
-                    (int) WINDOW_HEIGHT - FLOOR_SIZE - height/2,
-                    (int) stripe_width,
-                    (int) height
-                };
-                SDL_RenderDrawRect(renderer, &rect);
+                
+                //SDL_RenderDrawRect(renderer, &rect);
+                int yi = WINDOW_HEIGHT - FLOOR_SIZE - height/2;
+                SDL_RenderDrawLine(renderer, WINDOW_WIDTH - i, yi, WINDOW_WIDTH - i, yi + height);
             } else {
                 SDL_RenderDrawLine(renderer, player.x, player.y, smallest_intersection[0], smallest_intersection[1]);
             }
@@ -179,9 +177,29 @@ void render_camera(SDL_Renderer* renderer) {
     }
 }
 
+void render_background(SDL_Renderer* renderer) {
+    SDL_SetRenderDrawColor(renderer, 0, 48, 73, 255);
+    static SDL_Rect ceil_rect = {
+        0, 
+        0, 
+        (int) WINDOW_WIDTH, 
+        (int) WINDOW_HEIGHT - FLOOR_SIZE
+    };
+    SDL_RenderFillRect(renderer, &ceil_rect);
+
+    SDL_SetRenderDrawColor(renderer, 50, 2, 31, 255);
+    static SDL_Rect floor_rect = {
+        0, 
+        (int) WINDOW_HEIGHT - FLOOR_SIZE, 
+        (int) WINDOW_WIDTH, 
+        (int) FLOOR_SIZE
+    };
+    SDL_RenderFillRect(renderer, &floor_rect);
+
+}
+
 void render(SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, 15, 15, 15, 255);
-    SDL_RenderClear(renderer);
+    render_background(renderer);
 
     if(!FIRST_PERSON)
         render_map(renderer);

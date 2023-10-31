@@ -19,6 +19,7 @@ void setup_player(void) {
     player.velocity[0] = 0;
     player.velocity[1] = 0;
     player.rotation = 0;
+    player.angle = 0;
     
     player.move_set.front = FALSE;
     player.move_set.back  = FALSE;

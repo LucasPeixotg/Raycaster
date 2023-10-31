@@ -22,10 +22,12 @@ typedef enum {
 #define PLAYER_ROTATION_SPEED 1.3
 
 #define RAYS_NUMBER (WINDOW_WIDTH)
-//#define FOV (3.5 * PI / 5)
-#define FOV (PI / 2)
+#define FOV (3.5 * PI / 5)
+//#define FOV (PI / 2)
+//#define FOV (2*PI)
 
 #define FIRST_PERSON 1
 #define MOUSE_SENSITIVITY 2
-#define FLOOR_SIZE (WINDOW_HEIGHT/3)
+#define FLOOR_SIZE (WINDOW_HEIGHT/2)
 #define WALL_SIZE 20
+#define FOG_DISTANCE 100
