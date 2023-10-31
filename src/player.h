@@ -5,11 +5,10 @@ typedef struct {
     int back;
     int right;
     int left;
-    int rotate_left;
-    int rotate_right;
 } MoveSet;
 
 typedef struct {
+    float rotation;
     float x;
     float y;
     float width;
@@ -29,4 +28,4 @@ void setup_player(void);
 
 void set_move_player();
 
-void rotate_player(int x, int y);
+void rotate_player_towards(int x, int y);

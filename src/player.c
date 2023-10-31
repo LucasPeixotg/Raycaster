@@ -18,20 +18,17 @@ void setup_player(void) {
     
     player.velocity[0] = 0;
     player.velocity[1] = 0;
+    player.rotation = 0;
     
     player.move_set.front = FALSE;
     player.move_set.back  = FALSE;
     player.move_set.right = FALSE;
     player.move_set.left  = FALSE;
-    player.move_set.rotate_left = FALSE;
-    player.move_set.rotate_right = FALSE;
     
     player.possible_moves.front    = TRUE;
     player.possible_moves.back  = TRUE;
     player.possible_moves.right = TRUE;
     player.possible_moves.left  = TRUE;
-    player.possible_moves.rotate_left = TRUE;
-    player.possible_moves.rotate_right = TRUE;
 }
 
 
@@ -68,13 +65,8 @@ void update_player(void) {
     player.x += player.velocity[0] * delta_time;
     player.y += player.velocity[1] * delta_time;
 
-    if(player.move_set.rotate_left) {
-        player.angle -= PLAYER_ROTATION_SPEED * delta_time;
-        normalize_angle(&player.angle);
-    } else if(player.move_set.rotate_right) {
-        player.angle += PLAYER_ROTATION_SPEED * delta_time;
-        normalize_angle(&player.angle);
-    }
+    player.angle -= player.rotation * PLAYER_ROTATION_SPEED * delta_time;
+    normalize_angle(&player.angle);
 }
 
 void render_player(SDL_Renderer* renderer) {
@@ -98,6 +90,6 @@ void render_player(SDL_Renderer* renderer) {
     );
 }
 
-void rotate_player(int x, int y) {
+void rotate_player_towards(int x, int y) {
     player.angle = atan2(y - player.y, x - player.x);
 }

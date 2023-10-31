@@ -8,17 +8,18 @@
 #include "utils.h"
 
 // MAP
-const int map_lines = 8;
-float map[8][4] = {
-    {200, 200, 200, 400},
-    {400, 200, 900, 300},
-    {400, 700, 000, 300},
-    {000, 200, 700, 100},
-    
-    {0, 0, WINDOW_WIDTH-1, 0},
-    {0, 0, 0, WINDOW_HEIGHT-1},
-    {0, WINDOW_HEIGHT-1, WINDOW_WIDTH-1, WINDOW_HEIGHT-1},
-    {WINDOW_WIDTH-1, 0, WINDOW_WIDTH-1, WINDOW_HEIGHT-1}
+const int map_lines = 9;
+float map[9][4] = {
+    {200, 200, 200, 900},
+    {200, 900, 500, 220},
+    {500, 220, 000, 310},
+    {000, 310, 000, WINDOW_HEIGHT},
+    {WINDOW_WIDTH, 200, 000, 310},
+
+    {0, 0, WINDOW_WIDTH, 10},
+    {WINDOW_WIDTH, 10, WINDOW_WIDTH, WINDOW_HEIGHT},
+    {WINDOW_WIDTH, WINDOW_HEIGHT, 0, WINDOW_HEIGHT+10},
+    {0, WINDOW_HEIGHT+10, 0, 0},
 };
 
 
@@ -60,6 +61,9 @@ int initialize_window(SDL_Window** window, SDL_Renderer** renderer) {
         fprintf(stderr, "Error creating SDL renderer.\n");
         return FALSE;
     }
+    
+    if(FIRST_PERSON)
+        SDL_SetRelativeMouseMode(SDL_TRUE);
 
     return TRUE;
 }
@@ -71,13 +75,13 @@ void setup(void) {
 void process_inputs() {
     SDL_Event event;
     SDL_PollEvent(&event);
-
-    if(!FIRST_PERSON) {
-        int mouse_x, mouse_y;
-        SDL_GetMouseState(&mouse_x, &mouse_y);
-        rotate_player(mouse_x, mouse_y);
-    }
     
+    static int mouse_x=0, mouse_y=0;
+    
+    if(!FIRST_PERSON) {
+        SDL_GetMouseState(&mouse_x, &mouse_y);
+        rotate_player_towards(mouse_x, mouse_y);
+    } 
 
     switch(event.type) {
         case SDL_QUIT:
@@ -90,10 +94,6 @@ void process_inputs() {
             if(event.key.keysym.sym == SDLK_d) player.move_set.right = TRUE;
             if(event.key.keysym.sym == SDLK_s) player.move_set.back = TRUE;
             if(event.key.keysym.sym == SDLK_a) player.move_set.left = TRUE;
-            if(FIRST_PERSON) {
-                if(event.key.keysym.sym == SDLK_LEFT) player.move_set.rotate_left = TRUE;
-                if(event.key.keysym.sym == SDLK_RIGHT) player.move_set.rotate_right = TRUE;
-            }
             if(event.key.keysym.sym == SDLK_r) setup_player();
 
             break;
@@ -102,12 +102,17 @@ void process_inputs() {
             if(event.key.keysym.sym == SDLK_d) player.move_set.right = FALSE;
             if(event.key.keysym.sym == SDLK_s) player.move_set.back = FALSE;
             if(event.key.keysym.sym == SDLK_a) player.move_set.left = FALSE;
-            if(FIRST_PERSON) {
-                if(event.key.keysym.sym == SDLK_LEFT) player.move_set.rotate_left = FALSE;
-                if(event.key.keysym.sym == SDLK_RIGHT) player.move_set.rotate_right = FALSE;
-            }
-
             break;
+
+        case SDL_MOUSEMOTION:
+            if(FIRST_PERSON) {
+                SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
+                printf("STATE: (%d, %d)\n", mouse_x, mouse_y);
+                player.rotation = -mouse_x * MOUSE_SENSITIVITY;
+            }
+            break;
+        default:
+            player.rotation = 0;
 
     }
 }
@@ -151,13 +156,13 @@ void render_camera(SDL_Renderer* renderer) {
         }
 
         if(smallest_intersection[2] != INFINITY) {
-            float color = smallest_intersection[2] > 500? 0 : (1 - smallest_intersection[2] / 500) * 255;
+            float color = smallest_intersection[2] > 360? 0 : (1 - smallest_intersection[2] /360) * 255;
             SDL_SetRenderDrawColor(renderer, color, color, color, 255);
             if(FIRST_PERSON) {
-                float height = WINDOW_HEIGHT / (smallest_intersection[2] / WALL_HEIGHT);
+                float height = WINDOW_HEIGHT / (smallest_intersection[2] / WALL_SIZE);
                 SDL_Rect rect = {
                     (int) WINDOW_WIDTH - stripe_width*i,
-                    (int) WINDOW_HEIGHT / 2 - height/2,
+                    (int) WINDOW_HEIGHT - FLOOR_SIZE - height/2,
                     (int) stripe_width,
                     (int) height
                 };
@@ -166,6 +171,7 @@ void render_camera(SDL_Renderer* renderer) {
                 SDL_RenderDrawLine(renderer, player.x, player.y, smallest_intersection[0], smallest_intersection[1]);
             }
         }
+
         smallest_intersection[0] = 0; 
         smallest_intersection[1] = 0; 
         smallest_intersection[2] = INFINITY; 
@@ -174,7 +180,7 @@ void render_camera(SDL_Renderer* renderer) {
 }
 
 void render(SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, 15, 15, 40, 255);
+    SDL_SetRenderDrawColor(renderer, 15, 15, 15, 255);
     SDL_RenderClear(renderer);
 
     if(!FIRST_PERSON)
