@@ -5,12 +5,16 @@ typedef struct {
     int back;
     int right;
     int left;
+    int jump;
 } MoveSet;
 
 typedef struct {
     float rotation;
     float x;
     float y;
+    float z;
+    float z_vel;
+    int is_jumping;
     float width;
     float height;
     float velocity[2];

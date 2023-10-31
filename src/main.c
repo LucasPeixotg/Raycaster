@@ -96,6 +96,7 @@ void process_inputs() {
             if(event.key.keysym.sym == SDLK_d) player.move_set.right = TRUE;
             if(event.key.keysym.sym == SDLK_s) player.move_set.back = TRUE;
             if(event.key.keysym.sym == SDLK_a) player.move_set.left = TRUE;
+            if(event.key.keysym.sym == SDLK_SPACE) player.move_set.jump = TRUE;
             if(event.key.keysym.sym == SDLK_r) setup_player();
 
             break;
@@ -104,12 +105,12 @@ void process_inputs() {
             if(event.key.keysym.sym == SDLK_d) player.move_set.right = FALSE;
             if(event.key.keysym.sym == SDLK_s) player.move_set.back = FALSE;
             if(event.key.keysym.sym == SDLK_a) player.move_set.left = FALSE;
+            if(event.key.keysym.sym == SDLK_SPACE) player.move_set.jump = FALSE;
             break;
 
         case SDL_MOUSEMOTION:
             if(FIRST_PERSON) {
                 SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
-                printf("STATE: (%d, %d)\n", mouse_x, mouse_y);
                 player.rotation = -mouse_x * MOUSE_SENSITIVITY;
             }
             break;
@@ -164,7 +165,7 @@ void render_camera(SDL_Renderer* renderer) {
                 
                 //SDL_RenderDrawRect(renderer, &rect);
                 int yi = WINDOW_HEIGHT - FLOOR_SIZE - height/2;
-                SDL_RenderDrawLine(renderer, WINDOW_WIDTH - i, yi, WINDOW_WIDTH - i, yi + height);
+                SDL_RenderDrawLine(renderer, WINDOW_WIDTH - i, yi + player.z + 0.7 * player.z*cos((smallest_intersection[3] - player.angle)/8), WINDOW_WIDTH - i, yi + height + player.z + 0.7 * player.z*cos((smallest_intersection[3] - player.angle)/8));
             } else {
                 SDL_RenderDrawLine(renderer, player.x, player.y, smallest_intersection[0], smallest_intersection[1]);
             }
@@ -179,22 +180,22 @@ void render_camera(SDL_Renderer* renderer) {
 
 void render_background(SDL_Renderer* renderer) {
     SDL_SetRenderDrawColor(renderer, 0, 48, 73, 255);
-    static SDL_Rect ceil_rect = {
-        0, 
-        0, 
-        (int) WINDOW_WIDTH, 
-        (int) WINDOW_HEIGHT - FLOOR_SIZE
-    };
-    SDL_RenderFillRect(renderer, &ceil_rect);
+    SDL_RenderClear(renderer);
 
-    SDL_SetRenderDrawColor(renderer, 50, 2, 31, 255);
-    static SDL_Rect floor_rect = {
-        0, 
-        (int) WINDOW_HEIGHT - FLOOR_SIZE, 
-        (int) WINDOW_WIDTH, 
-        (int) FLOOR_SIZE
-    };
-    SDL_RenderFillRect(renderer, &floor_rect);
+    SDL_SetRenderDrawColor(renderer, 15, 15, 15, 255);
+    if(player.is_jumping) {
+        for(int i = 0; i < WINDOW_WIDTH; i++) {
+            SDL_RenderDrawLine(renderer, i, FLOOR_SIZE + player.z + 0.7 * player.z*cos(((i - WINDOW_WIDTH/8) * FOV/WINDOW_WIDTH)/4), i, WINDOW_HEIGHT);
+        } 
+    } else {
+        SDL_Rect floor_rect = {
+            0, 
+            (int) WINDOW_HEIGHT - FLOOR_SIZE, 
+            (int) WINDOW_WIDTH, 
+            (int) FLOOR_SIZE
+        };
+        SDL_RenderFillRect(renderer, &floor_rect);
+    }
 
 }
 

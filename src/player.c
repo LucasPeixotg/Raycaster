@@ -15,6 +15,7 @@ void setup_player(void) {
 
     player.x = WINDOW_WIDTH / 2.0f - player.width / 2.0f;
     player.y = WINDOW_HEIGHT / 2.0f - player.height / 2.0f;
+    player.z = 0;
     
     player.velocity[0] = 0;
     player.velocity[1] = 0;
@@ -25,11 +26,13 @@ void setup_player(void) {
     player.move_set.back  = FALSE;
     player.move_set.right = FALSE;
     player.move_set.left  = FALSE;
+    player.move_set.jump  = FALSE;
     
     player.possible_moves.front    = TRUE;
     player.possible_moves.back  = TRUE;
     player.possible_moves.right = TRUE;
     player.possible_moves.left  = TRUE;
+    player.possible_moves.jump  = TRUE;
 }
 
 
@@ -53,6 +56,17 @@ void set_move_player(void) {
         player.velocity[1] += sin(player.angle + PI);
     }
 
+    if(player.is_jumping && player.z == 0) {
+        player.possible_moves.jump = TRUE;
+        player.is_jumping = FALSE;
+    }
+
+    if(player.move_set.jump && player.possible_moves.jump) {
+        player.z_vel = PLAYER_JUMP_VELOCITY;
+        player.possible_moves.jump = FALSE;
+        player.is_jumping = TRUE;
+    }
+
     normalize_vector2(player.velocity);
     player.velocity[0] *= PLAYER_MOVE_SPEED;
     player.velocity[1] *= PLAYER_MOVE_SPEED;
@@ -62,6 +76,11 @@ void update_player(void) {
     set_move_player();
 
     float delta_time = get_delta_time();
+
+    player.z_vel -= delta_time * GRAVITY_ACCELERATION;
+
+    player.z += player.z_vel * delta_time;
+    if(player.z < 0 ) player.z = 0;
 
     player.x += player.velocity[0] * delta_time;
     player.y += player.velocity[1] * delta_time;
