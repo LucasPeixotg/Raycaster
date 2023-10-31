@@ -5,6 +5,8 @@ typedef struct {
     int back;
     int right;
     int left;
+    int rotate_left;
+    int rotate_right;
 } MoveSet;
 
 typedef struct {

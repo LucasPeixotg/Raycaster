@@ -18,7 +18,13 @@ typedef enum {
 
 #define PLAYER_WIDTH  10
 #define PLAYER_HEIGHT 10
-#define PLAYER_MOVE_SPEED 300
+#define PLAYER_MOVE_SPEED 100
+#define PLAYER_ROTATION_SPEED 1
 
 #define RAYS_NUMBER (WINDOW_WIDTH)
-#define FOV (3.5 * PI / 5)
+//#define FOV (3.5 * PI / 5)
+#define FOV (PI / 4)
+
+#define FIRST_PERSON 1
+
+#define WALL_HEIGHT 20

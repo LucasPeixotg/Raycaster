@@ -72,10 +72,12 @@ void process_inputs() {
     SDL_Event event;
     SDL_PollEvent(&event);
 
-    int mouse_x, mouse_y;
-    SDL_GetMouseState(&mouse_x, &mouse_y);
+    if(!FIRST_PERSON) {
+        int mouse_x, mouse_y;
+        SDL_GetMouseState(&mouse_x, &mouse_y);
+        rotate_player(mouse_x, mouse_y);
+    }
     
-    rotate_player(mouse_x, mouse_y);
 
     switch(event.type) {
         case SDL_QUIT:
@@ -88,6 +90,10 @@ void process_inputs() {
             if(event.key.keysym.sym == SDLK_d) player.move_set.right = TRUE;
             if(event.key.keysym.sym == SDLK_s) player.move_set.back = TRUE;
             if(event.key.keysym.sym == SDLK_a) player.move_set.left = TRUE;
+            if(FIRST_PERSON) {
+                if(event.key.keysym.sym == SDLK_LEFT) player.move_set.rotate_left = TRUE;
+                if(event.key.keysym.sym == SDLK_RIGHT) player.move_set.rotate_right = TRUE;
+            }
             if(event.key.keysym.sym == SDLK_r) setup_player();
 
             break;
@@ -96,6 +102,10 @@ void process_inputs() {
             if(event.key.keysym.sym == SDLK_d) player.move_set.right = FALSE;
             if(event.key.keysym.sym == SDLK_s) player.move_set.back = FALSE;
             if(event.key.keysym.sym == SDLK_a) player.move_set.left = FALSE;
+            if(FIRST_PERSON) {
+                if(event.key.keysym.sym == SDLK_LEFT) player.move_set.rotate_left = FALSE;
+                if(event.key.keysym.sym == SDLK_RIGHT) player.move_set.rotate_right = FALSE;
+            }
 
             break;
 
@@ -113,66 +123,63 @@ void render_map(SDL_Renderer* renderer) {
     }
 }
 
-void render_rays(SDL_Renderer* renderer) {
+void render_camera(SDL_Renderer* renderer) {
+    /*
+        TODO:
+            - improve performance
+            - clean code
+    */
     float intersection[2];
     float angle_off =  FOV / RAYS_NUMBER;
+    float stripe_width = WINDOW_WIDTH / RAYS_NUMBER;
 
     SDL_SetRenderDrawColor(renderer, 255, 255,255,255);
-    float smallest_intersection[3] = { 0 , 0 , INFINITY}; 
+    float smallest_intersection[4] = { 0 , 0 , INFINITY, player.angle}; 
+    float angle;
     for(int i = 0; i < RAYS_NUMBER; i++) {
         for(int j = 0; j < map_lines; j++) {
-
-            if(intersection_lines(player.angle + (FOV/2) - (angle_off * i), player.x, player.y, map[j], intersection)) {
-                if(distance_between_points(player.x, player.y, intersection[0], intersection[1]) < smallest_intersection[2]) {
+            angle = player.angle + (FOV/2) - (angle_off * i);
+            normalize_angle(&angle);
+            if(intersection_lines(angle, player.x, player.y, map[j], intersection)) {
+                if(ne_distance_between_points(player.x, player.y, intersection[0], intersection[1]) < smallest_intersection[2]) {
                     smallest_intersection[0] = intersection[0];
                     smallest_intersection[1] = intersection[1];
-                    smallest_intersection[2] = distance_between_points(player.x, player.y, intersection[0], intersection[1]);
+                    smallest_intersection[2] = ne_distance_between_points(player.x, player.y, intersection[0], intersection[1]);
+                    smallest_intersection[3] = angle;
                 }
             }
         }
 
-        if(i == 0) {
-            SDL_SetRenderDrawColor(renderer, 255, 0,0,255);
-            printf("PLAYER: %d - ", (int) (player.angle / 2 / PI * 360));
-            printf("FIRST: %d", (int) ((player.angle + (FOV/2) - (angle_off * i)) / 2 / PI * 360));
-        } else if(i == RAYS_NUMBER - 1) {
-            SDL_SetRenderDrawColor(renderer, 255, 0,0,255);
-            printf(" - LAST: %d\n", (int) ((player.angle + (FOV/2) - (angle_off * i)) / 2 / PI * 360));
-        }
-        else  SDL_SetRenderDrawColor(renderer, 255, 255,255,255);
         if(smallest_intersection[2] != INFINITY) {
-            SDL_RenderDrawLine(renderer, player.x, player.y, smallest_intersection[0], smallest_intersection[1]);
-            smallest_intersection[0] = 0; 
-            smallest_intersection[1] = 0; 
-            smallest_intersection[2] = INFINITY; 
-        }
-    }
-
-    smallest_intersection[0] = 0; 
-    smallest_intersection[1] = 0; 
-    smallest_intersection[2] = INFINITY; 
-    for(int j = 0; j < map_lines; j++) {
-        if(intersection_lines(player.angle, player.x, player.y, map[j], intersection)) {
-            if(distance_between_points(player.x, player.y, intersection[0], intersection[1]) < smallest_intersection[2]) {
-                smallest_intersection[0] = intersection[0];
-                smallest_intersection[1] = intersection[1];
-                smallest_intersection[2] = distance_between_points(player.x, player.y, intersection[0], intersection[1]);
+            float color = smallest_intersection[2] > 500? 0 : (1 - smallest_intersection[2] / 500) * 255;
+            SDL_SetRenderDrawColor(renderer, color, color, color, 255);
+            if(FIRST_PERSON) {
+                float height = WINDOW_HEIGHT / (smallest_intersection[2] / WALL_HEIGHT);
+                SDL_Rect rect = {
+                    (int) WINDOW_WIDTH - stripe_width*i,
+                    (int) WINDOW_HEIGHT / 2 - height/2,
+                    (int) stripe_width,
+                    (int) height
+                };
+                SDL_RenderDrawRect(renderer, &rect);
+            } else {
+                SDL_RenderDrawLine(renderer, player.x, player.y, smallest_intersection[0], smallest_intersection[1]);
             }
         }
+        smallest_intersection[0] = 0; 
+        smallest_intersection[1] = 0; 
+        smallest_intersection[2] = INFINITY; 
 
-        if(smallest_intersection[2] != INFINITY) {
-            SDL_SetRenderDrawColor(renderer, 0, 255,0,255);
-            SDL_RenderDrawLine(renderer, player.x, player.y, smallest_intersection[0], smallest_intersection[1]);
-        }
     }
 }
 
 void render(SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, 15, 15, 15, 255);
+    SDL_SetRenderDrawColor(renderer, 15, 15, 40, 255);
     SDL_RenderClear(renderer);
 
-    render_map(renderer);
-    render_rays(renderer);
+    if(!FIRST_PERSON)
+        render_map(renderer);
+    render_camera(renderer);
     //render_player(renderer);
 
     // buffer swap
