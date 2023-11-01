@@ -24,11 +24,11 @@ typedef enum {
 #define GRAVITY_ACCELERATION 550;
 
 #define RAYS_NUMBER (WINDOW_WIDTH)
-#define FOV (3.5 * PI / 5)
-//#define FOV (PI / 2)
+//#define FOV (3.5 * PI / 5)
+#define FOV (PI / 3)
 //#define FOV (2*PI)
 
 #define FIRST_PERSON 1
 #define MOUSE_SENSITIVITY 2
 #define FLOOR_SIZE (WINDOW_HEIGHT/2)
-#define WALL_SIZE 20
+#define WALL_SIZE 50

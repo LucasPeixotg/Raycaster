@@ -23,8 +23,7 @@ typedef struct {
     MoveSet possible_moves;
 } Player;
 
-
-void update_player();
+void update_player(double delta_time);
 
 void render_player(SDL_Renderer* renderer);
 

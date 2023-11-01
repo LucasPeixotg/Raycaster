@@ -72,15 +72,18 @@ void set_move_player(void) {
     player.velocity[1] *= PLAYER_MOVE_SPEED;
 }
 
-void update_player(void) {
+void update_player(double delta_time) {
     set_move_player();
-
-    float delta_time = get_delta_time();
 
     player.z_vel -= delta_time * GRAVITY_ACCELERATION;
 
     player.z += player.z_vel * delta_time;
     if(player.z < 0 ) player.z = 0;
+
+    if(player.is_jumping) {
+            player.velocity[0] *= 5;
+            player.velocity[1] *= 5;
+    }
 
     player.x += player.velocity[0] * delta_time;
     player.y += player.velocity[1] * delta_time;

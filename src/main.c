@@ -6,20 +6,33 @@
 #include "constants.h"
 #include "player.h"
 #include "utils.h"
+#include "gametime.h"
 
 // MAP
-const int map_lines = 9;
-float map[9][4] = {
-    {200, 200, 200, 900},
-    {200, 900, 500, 220},
-    {500, 220, 000, 310},
-    {000, 310, 000, WINDOW_HEIGHT},
-    {WINDOW_WIDTH, 200, 000, 310},
+const int map_lines = 19;
+float map[100][7] = {
+    {0, 0, WINDOW_WIDTH+1, 0, 255, 0, 255},
+    {WINDOW_WIDTH+1, 0, WINDOW_WIDTH+1, WINDOW_HEIGHT, 255, 0, 255},
+    {WINDOW_WIDTH+1, WINDOW_HEIGHT, 0, WINDOW_HEIGHT+1, 255, 0, 255},
+    {0, WINDOW_HEIGHT+1, 0, 0, 255, 0, 255},
 
-    {0, 0, WINDOW_WIDTH, 10},
-    {WINDOW_WIDTH, 10, WINDOW_WIDTH, WINDOW_HEIGHT},
-    {WINDOW_WIDTH, WINDOW_HEIGHT, 0, WINDOW_HEIGHT+10},
-    {0, WINDOW_HEIGHT+10, 0, 0},
+    {000, 200, 100, 201, 255, 255, 255},
+    {110, 202, 200, 203, 255, 255, 255},
+    {210, 204, 300, 205, 255, 255, 255},
+    {310, 206, 400, 207, 255, 255, 255},
+    {410, 208, 500, 209, 255, 255, 255},
+
+    {000 + 400, 500, 100 + 400, 501, 255, 220, 0},
+    {110 + 400, 502, 200 + 400, 503, 255, 220, 0},
+    {210 + 400, 504, 300 + 400, 505, 255, 220, 0},
+    {310 + 400, 506, 400 + 400, 507, 255, 220, 0},
+    {410 + 400, 508, 500 + 400, 509, 255, 220, 0},
+
+    {000 + 200, 400, 100 + 200, 401, 000, 255, 0},
+    {110 + 200, 402, 200 + 200, 403, 000, 255, 0},
+    {210 + 200, 404, 300 + 200, 405, 000, 255, 0},
+    {310 + 200, 406, 400 + 200, 407, 000, 255, 0},
+    {410 + 200, 408, 500 + 200, 409, 000, 255, 0},
 };
 
 
@@ -121,7 +134,10 @@ void process_inputs() {
 }
 
 void update() {
-    update_player();
+    double delta = get_delta_time();
+    printf("%lf\n", delta);
+
+    update_player(delta);
 }
 
 void render_map(SDL_Renderer* renderer) {
@@ -144,6 +160,7 @@ void render_camera(SDL_Renderer* renderer) {
     float smallest_intersection[4] = { 0 , 0 , INFINITY, player.angle}; 
     float angle;
     for(int i = 0; i < RAYS_NUMBER; i++) {
+        int wall_index = 0;
         for(int j = 0; j < map_lines; j++) {
             angle = player.angle + (FOV/2) - (angle_off * i);
             normalize_angle(&angle);
@@ -153,28 +170,27 @@ void render_camera(SDL_Renderer* renderer) {
                     smallest_intersection[1] = intersection[1];
                     smallest_intersection[2] = ne_distance_between_points(player.x, player.y, intersection[0], intersection[1]);
                     smallest_intersection[3] = angle;
+                    wall_index = j;
                 }
             }
         }
 
         if(smallest_intersection[2] != INFINITY) {
             float color = smallest_intersection[2] > 400? 0.01 : (1 - smallest_intersection[2] /400);
-            SDL_SetRenderDrawColor(renderer, 141*color, 170*color, 145*color, 255);
+            SDL_SetRenderDrawColor(renderer, map[wall_index][4]*color, map[wall_index][5]*color, map[wall_index][6]*color, 255);
             if(FIRST_PERSON) {
                 float height = WINDOW_HEIGHT / (smallest_intersection[2] / WALL_SIZE);
                 
-                //SDL_RenderDrawRect(renderer, &rect);
                 int yi = WINDOW_HEIGHT - FLOOR_SIZE - height/2;
-                SDL_RenderDrawLine(renderer, WINDOW_WIDTH - i, yi + player.z + 0.7 * player.z*cos((smallest_intersection[3] - player.angle)/8), WINDOW_WIDTH - i, yi + height + player.z + 0.7 * player.z*cos((smallest_intersection[3] - player.angle)/8));
+                SDL_RenderDrawLine(renderer, WINDOW_WIDTH - i, yi + player.z + 0.7 * player.z*cos((fabs(smallest_intersection[3]) - fabs(player.angle))/8), WINDOW_WIDTH - i, yi + height + player.z + 0.7 * player.z*cos((fabs(smallest_intersection[3]) - fabs(player.angle))/8));
             } else {
                 SDL_RenderDrawLine(renderer, player.x, player.y, smallest_intersection[0], smallest_intersection[1]);
             }
         }
 
-        smallest_intersection[0] = 0; 
-        smallest_intersection[1] = 0; 
-        smallest_intersection[2] = INFINITY; 
-
+        smallest_intersection[0] = 0;
+        smallest_intersection[1] = 0;
+        smallest_intersection[2] = INFINITY;
     }
 }
 
