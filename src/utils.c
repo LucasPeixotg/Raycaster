@@ -21,14 +21,19 @@ void normalize_angle(float* angle) {
 }
 
 int intersection_lines(float angle, float xi, float yi, float line[4], float intersection[2]) {
-    float ao = tan(angle);
-    float bo = -1;
-    float co = yi - xi * tan(angle);
+    static float ao;
+    ao = tan(angle);
+    static float bo = -1;
+    static float co;
+    co = yi - xi * tan(angle);
 
-    float at = line[1] - line[3];
-    float bt = line[2] - line[0];
-    float ct = line[3] * line[0] - line[1] * line[2];
-
+    static float at;
+    at = line[1] - line[3];
+    static float bt;
+    bt = line[2] - line[0];
+    static float ct;
+    ct = line[3] * line[0] - line[1] * line[2];
+ 
     if(ao * bt - at * bo == 0) return 0;
 
     intersection[0] = (bo * ct - bt * co) / (ao * bt - at * bo);
@@ -66,7 +71,11 @@ int intersection_lines(float angle, float xi, float yi, float line[4], float int
     return 1;
 }
 
-float ne_distance_between_points(float a, float b, float x, float y) {
-    return sqrt(pow(a - x, 2) + pow(b - y, 2));
-    //return fabs(a - x) + fabs(b - y);
+float distance_from_plane(float plane_vector[2], float x, float y) {
+    float proj = (plane_vector[0]*x + plane_vector[1]*y)/(plane_vector[0]*plane_vector[0] + plane_vector[1]*plane_vector[1]);
+    float orto_proj[2] = {
+        x - proj * plane_vector[0],
+        y - proj * plane_vector[1]
+    };
+    return abs_vector2(orto_proj);
 }

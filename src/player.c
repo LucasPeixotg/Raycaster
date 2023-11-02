@@ -81,8 +81,8 @@ void update_player(double delta_time) {
     if(player.z < 0 ) player.z = 0;
 
     if(player.is_jumping) {
-            player.velocity[0] *= 5;
-            player.velocity[1] *= 5;
+            player.velocity[0] *= 1.5;
+            player.velocity[1] *= 1.5;
     }
 
     player.x += player.velocity[0] * delta_time;
@@ -114,5 +114,5 @@ void render_player(SDL_Renderer* renderer) {
 }
 
 void rotate_player_towards(int x, int y) {
-    player.angle = atan2(y - player.y, x - player.x);
+    player.angle = atan2f(y - player.y, x - player.x);
 }

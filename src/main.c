@@ -135,7 +135,7 @@ void process_inputs() {
 
 void update() {
     double delta = get_delta_time();
-    printf("%lf\n", delta);
+    printf("ANGLE %lf\n", player.angle / 2 / PI * 360);
 
     update_player(delta);
 }
@@ -158,17 +158,22 @@ void render_camera(SDL_Renderer* renderer) {
 
     SDL_SetRenderDrawColor(renderer, 255, 255,255,255);
     float smallest_intersection[4] = { 0 , 0 , INFINITY, player.angle}; 
-    float angle;
+    float angle, height, distance;
+    float plane_vector[2] = {
+        cos(player.angle + PI/2),
+        sin(player.angle + PI/2)
+    };
     for(int i = 0; i < RAYS_NUMBER; i++) {
         int wall_index = 0;
         for(int j = 0; j < map_lines; j++) {
             angle = player.angle + (FOV/2) - (angle_off * i);
             normalize_angle(&angle);
             if(intersection_lines(angle, player.x, player.y, map[j], intersection)) {
-                if(ne_distance_between_points(player.x, player.y, intersection[0], intersection[1]) < smallest_intersection[2]) {
+                distance = distance_from_plane(plane_vector, player.x -  intersection[0], player.y - intersection[1]); 
+                if(distance < smallest_intersection[2]) {
                     smallest_intersection[0] = intersection[0];
                     smallest_intersection[1] = intersection[1];
-                    smallest_intersection[2] = ne_distance_between_points(player.x, player.y, intersection[0], intersection[1]);
+                    smallest_intersection[2] = distance;
                     smallest_intersection[3] = angle;
                     wall_index = j;
                 }
@@ -176,14 +181,17 @@ void render_camera(SDL_Renderer* renderer) {
         }
 
         if(smallest_intersection[2] != INFINITY) {
-            float color = smallest_intersection[2] > 400? 0.01 : (1 - smallest_intersection[2] /400);
-            SDL_SetRenderDrawColor(renderer, map[wall_index][4]*color, map[wall_index][5]*color, map[wall_index][6]*color, 255);
+            float color = smallest_intersection[2] > 600? 0.01 : (1 - smallest_intersection[2] /600);
+
             if(FIRST_PERSON) {
-                float height = WINDOW_HEIGHT / (smallest_intersection[2] / WALL_SIZE);
+                SDL_SetRenderDrawColor(renderer, map[wall_index][4]*color, map[wall_index][5]*color, map[wall_index][6]*color, 255);
+                height = WINDOW_HEIGHT / (smallest_intersection[2] / WALL_SIZE);
                 
                 int yi = WINDOW_HEIGHT - FLOOR_SIZE - height/2;
-                SDL_RenderDrawLine(renderer, WINDOW_WIDTH - i, yi + player.z + 0.7 * player.z*cos((fabs(smallest_intersection[3]) - fabs(player.angle))/8), WINDOW_WIDTH - i, yi + height + player.z + 0.7 * player.z*cos((fabs(smallest_intersection[3]) - fabs(player.angle))/8));
+                float jump_offset = + 0.7 * player.z*cos(((i - WINDOW_WIDTH/8) * FOV/WINDOW_WIDTH)/4);
+                SDL_RenderDrawLine(renderer, WINDOW_WIDTH - i, yi + player.z + jump_offset, WINDOW_WIDTH - i, yi + height + player.z + jump_offset);
             } else {
+                SDL_SetRenderDrawColor(renderer, 255*color, 255*color, 255*color, 255);
                 SDL_RenderDrawLine(renderer, player.x, player.y, smallest_intersection[0], smallest_intersection[1]);
             }
         }
@@ -212,7 +220,6 @@ void render_background(SDL_Renderer* renderer) {
         };
         SDL_RenderFillRect(renderer, &floor_rect);
     }
-
 }
 
 void render(SDL_Renderer* renderer) {
