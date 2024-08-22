@@ -135,7 +135,7 @@ void process_inputs() {
 
 void update() {
     double delta = get_delta_time();
-    printf("ANGLE %lf\n", player.angle / 2 / PI * 360);
+    //printf("ANGLE %lf\n", player.angle / 2 / PI * 360);
 
     update_player(delta);
 }
