@@ -33,7 +33,7 @@ double map[100][7] = {
 
 
 // External variables defined in player.h
-extern Player player;
+extern struct player player;
 
 // Global variable to track the game state (running or not)
 int game_is_running = FALSE;

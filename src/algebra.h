@@ -2,10 +2,11 @@
 #define ALGEBRA_H
 
 struct line {
-    double x0;
-    double y0;
-    double xf;
-    double yf;
+    double x0, y0, xf, yf;
+};
+
+struct point {
+    double x, y;
 };
 
 /*

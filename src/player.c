@@ -8,7 +8,7 @@
 #include "player.h"
 
 // Global player object
-Player player;
+struct player player;
 
 /*
     Initializes player properties.

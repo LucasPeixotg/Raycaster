@@ -7,19 +7,19 @@
     Structure to hold player movement state.
     This includes whether the player is moving in specific directions or jumping.
 */
-typedef struct {
+struct move_set {
     int front;  // 1 if moving forward, 0 otherwise
     int back;   // 1 if moving backward, 0 otherwise
     int right;  // 1 if moving right, 0 otherwise
     int left;   // 1 if moving left, 0 otherwise
     int jump;   // 1 if the player is jumping, 0 otherwise
-} MoveSet;
+};
 
 /*
     Structure to represent a player in the game.
     This includes the player's position, velocity, dimensions, and movement states.
 */
-typedef struct {
+struct player {
     double rotation;      // The current rotation of the player (angle)
     double x;             // The x-coordinate of the player's position
     double y;             // The y-coordinate of the player's position
@@ -30,9 +30,9 @@ typedef struct {
     double height;        // The height of the player (used for rendering)
     double velocity[2];   // The velocity vector of the player (x and y components)
     double angle;         // The angle the player is facing
-    MoveSet move_set;    // The current movement states (front, back, right, left, jump)
-    MoveSet possible_moves; // The possible moves based on the environment (obstacles, etc.)
-} Player;
+    struct move_set move_set;    // The current movement states (front, back, right, left, jump)
+    struct move_set possible_moves; // The possible moves based on the environment (obstacles, etc.)
+};
 
 /*
     Updates the player's state based on the elapsed time.
