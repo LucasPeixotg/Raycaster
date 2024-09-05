@@ -5,64 +5,32 @@
 
 #include "constants.h" // Project constants (screen size, player attributes, etc.)
 #include "player.h"    // Player structure and functions
-#include "utils.h"     // Utility functions for the game
+#include "algebra.h"     // Utility functions for the game
 #include "gametime.h"  // Time handling functions
 
 // Map definition: simple 2D array representing lines with their RGB color values
-const int map_lines = 27; 
-float map[100][7] = {
-    // Horizontal lines
-    {10, 10, 110, 10, 255, 0, 0},    // Line 1: Horizontal red line (top boundary)
-    {10, 110, 110, 110, 255, 0, 0},  // Line 2: Horizontal red line (bottom boundary)
-    
-    // Vertical lines
-    {10, 10, 10, 110, 0, 255, 0},    // Line 3: Vertical green line (left boundary)
-    {110, 10, 110, 110, 0, 255, 0},  // Line 4: Vertical green line (right boundary)
-    
-    // Diagonal lines
-    {20, 20, 80, 80, 0, 0, 255},     // Line 5: Blue diagonal from (20, 20) to (80, 80)
-    {80, 20, 20, 80, 0, 0, 255},     // Line 6: Blue diagonal from (80, 20) to (20, 80)
-    
-    // Complex shapes
-    {120, 20, 180, 20, 255, 255, 0}, // Line 7: Yellow horizontal line
-    {180, 20, 180, 80, 255, 255, 0}, // Line 8: Yellow vertical line
-    {180, 80, 120, 80, 255, 255, 0}, // Line 9: Yellow horizontal line
-    {120, 80, 120, 20, 255, 255, 0}, // Line 10: Yellow vertical line
-    
-    // L-shape structure
-    {50, 150, 150, 150, 255, 0, 255},// Line 11: Magenta horizontal
-    {150, 150, 150, 200, 255, 0, 255},// Line 12: Magenta vertical
-
-    // Maze-like pattern
-    {60, 120, 60, 180, 0, 255, 255}, // Line 13: Cyan vertical line (maze part)
-    {60, 180, 120, 180, 0, 255, 255},// Line 14: Cyan horizontal line
-    {120, 180, 120, 130, 0, 255, 255},// Line 15: Cyan vertical line (maze part)
-
-    // Cross structure
-    {130, 60, 190, 60, 128, 128, 128}, // Line 16: Gray horizontal line
-    {160, 30, 160, 90, 128, 128, 128}, // Line 17: Gray vertical line
-
-    // Outer box
-    {200, 200, 300, 200, 100, 100, 255}, // Line 18: Blue horizontal
-    {300, 200, 300, 300, 100, 100, 255}, // Line 19: Blue vertical
-    {300, 300, 200, 300, 100, 100, 255}, // Line 20: Blue horizontal
-    {200, 300, 200, 200, 100, 100, 255}, // Line 21: Blue vertical
-
-    // Open spaces
-    {250, 50, 300, 50, 255, 165, 0},   // Line 22: Orange horizontal line
-    {300, 50, 300, 100, 255, 165, 0},  // Line 23: Orange vertical line
-    {250, 100, 300, 100, 255, 165, 0}, // Line 24: Orange horizontal line
-
-    // Additional random lines
-    {50, 250, 100, 250, 255, 192, 203}, // Line 25: Pink horizontal line
-    {100, 250, 100, 290, 255, 192, 203},// Line 26: Pink vertical line
-
-    // Other structures
-    {210, 210, 290, 230, 70, 130, 180} // Line 27: Steel blue diagonal line
-
-    // Remaining lines (empty for now)
-    // Continue adding lines if needed...
+const int map_lines = 17;
+double map[100][7] = {
+    {10, 10, 300, 10, 255, 0, 0},       // Top horizontal wall
+    {10, 10, 10, 300, 255, 0, 0},       // Left vertical wall
+    {300, 10, 300, 300, 255, 0, 0},     // Right vertical wall
+    // Internal walls
+    {50,  10,  50,  100, 0,   255, 0},       // Vertical wall left
+    {50,  100, 100, 100, 0,   255, 0},     // Horizontal section
+    {100, 100, 100, 200, 0,   255, 0},    // Vertical wall middle left
+    {150, 50,  150, 150, 0,   255, 0},     // Vertical wall middle
+    {150, 150, 200, 150, 0,   255, 0},    // Horizontal section
+    {100, 200, 200, 200, 0,   0,   255},    // Horizontal wall middle bottom
+    {200, 200, 200, 250, 0,   0,   255},    // Vertical wall near bottom
+    {200, 250, 250, 250, 0,   0,   255},    // Bottom right horizontal section
+    {250, 50,  250, 150, 255, 255, 0},   // Vertical wall middle right
+    {250, 50,  300, 50,  255, 255, 0},    // Top-right horizontal wall
+    {150, 150, 150, 200, 0,   255, 255},  // Vertical middle wall extension
+    {200, 50,  150, 50,  0,   255, 255},    // Horizontal upper middle wall
+    {50,  250, 150, 250, 0,   255, 255},   // Horizontal lower middle wall
+    {50,  150, 50,  200, 255, 0,   255},    // Vertical left-bottom wall
 };
+
 
 // External variables defined in player.h
 extern Player player;
@@ -197,13 +165,13 @@ void render_map(SDL_Renderer* renderer) {
     and renders vertical slices representing walls.
 */
 void render_camera(SDL_Renderer* renderer) {
-    float intersection[2]; // Array to store intersection points
-    float angle_off =  FOV / RAYS_NUMBER; // Calculate angle step for each ray
+    double intersection[2]; // Array to store intersection points
+    double angle_off =  FOV / RAYS_NUMBER; // Calculate angle step for each ray
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Set draw color for rays
-    float smallest_intersection[4] = { 0 , 0 , INFINITY, player.angle}; // Track closest intersection
-    float angle, height, distance;
-    float plane_vector[2] = {
+    double smallest_intersection[4] = { 0 , 0 , INFINITY, player.angle}; // Track closest intersection
+    double angle, height, distance;
+    double plane_vector[2] = {
         cos(player.angle + PI/2), // Vector perpendicular to player's view direction
         sin(player.angle + PI/2)
     };
@@ -229,7 +197,7 @@ void render_camera(SDL_Renderer* renderer) {
         // If an intersection was found, render the wall slice
         if(smallest_intersection[2] != INFINITY) {
             float color = smallest_intersection[2] > 600 ? 0.01 : (1 - smallest_intersection[2] / 600); // Diminish brightness with distance
-
+            
             if(FIRST_PERSON) {
                 SDL_SetRenderDrawColor(renderer, map[wall_index][4]*color, map[wall_index][5]*color, map[wall_index][6]*color, 255); // Set wall color
                 height = WINDOW_HEIGHT / (smallest_intersection[2] / WALL_SIZE); // Calculate wall height
@@ -262,10 +230,10 @@ void render_camera(SDL_Renderer* renderer) {
     Handles the rendering of the floor texture and the sky color.
 */
 void render_background(SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, 0, 48, 73, 255); // Set color to blue for the sky
+    SDL_SetRenderDrawColor(renderer, 150, 150, 180, 55); // Set color for the sky
     SDL_RenderClear(renderer); // Clear the screen with the sky color
 
-    SDL_SetRenderDrawColor(renderer, 15, 15, 15, 255); // Set color to dark grey for the floor
+    SDL_SetRenderDrawColor(renderer, 0, 0, 10, 255); // Set color for the floor
     if(player.is_jumping) { // If the player is jumping, render a dynamic floor effect
         for(int i = 0; i < WINDOW_WIDTH; i++) { // Loop through each column of the screen
             SDL_RenderDrawLine(renderer, i, FLOOR_SIZE + player.z + 0.7 * player.z * cos(((i - WINDOW_WIDTH/8) * FOV / WINDOW_WIDTH) / 4), i, WINDOW_HEIGHT); // Draw floor line with jump offset

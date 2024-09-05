@@ -6,10 +6,10 @@
     Normalizes a 2D vector to unit length.
     Ensures that the vector maintains its direction but has a length of 1.
     Parameters:
-        - float vector2[2]: The vector to be normalized
+        - double vector2[2]: The vector to be normalized
 */
-void normalize_vector2(float vector2[2]) {
-    float len = sqrt(vector2[0]*vector2[0] + vector2[1]*vector2[1]); // Calculate vector length
+void normalize_vector2(double vector2[2]) {
+    double len = sqrt(vector2[0]*vector2[0] + vector2[1]*vector2[1]); // Calculate vector length
     vector2[0] = vector2[0] / (len ? len : 1); // Avoid division by zero
     vector2[1] = vector2[1] / (len ? len : 1); // Normalize each component
 }
@@ -17,21 +17,21 @@ void normalize_vector2(float vector2[2]) {
 /*
     Computes the magnitude (length) of a 2D vector.
     Parameters:
-        - float vector2[2]: The vector whose magnitude is to be computed
+        - double vector2[2]: The vector whose magnitude is to be computed
     Returns:
-        - float: The magnitude of the vector
+        - double: The magnitude of the vector
 */
-float abs_vector2(float vector2[2]) {
-    return (float) sqrt(vector2[0]*vector2[0] + vector2[1]*vector2[1]); // Calculate magnitude
+double abs_vector2(double vector2[2]) {
+    return (double) sqrt(vector2[0]*vector2[0] + vector2[1]*vector2[1]); // Calculate magnitude
 }
 
 /*
     Normalizes an angle to the range [-PI, PI].
     Ensures that the angle stays within the specified bounds.
     Parameters:
-        - float* angle: Pointer to the angle to be normalized
+        - double* angle: Pointer to the angle to be normalized
 */
-void normalize_angle(float* angle) {
+void normalize_angle(double* angle) {
     if(*angle < -PI) {
         *angle += 2 * PI; // Adjust angle if it's less than -PI
     } else if(*angle > PI) {
@@ -43,26 +43,29 @@ void normalize_angle(float* angle) {
     Computes the intersection point of a ray and a line segment.
     Checks if the intersection point lies within the bounds of the line segment.
     Parameters:
-        - float angle: The angle of the ray
-        - float xi, yi: The starting coordinates of the ray
-        - float line[4]: Coordinates of the line segment (x1, y1, x2, y2)
-        - float intersection[2]: Array to store the intersection coordinates
+        - double angle: The angle of the ray
+        - double xi, yi: The starting coordinates of the ray
+        - double line[4]: Coordinates of the line segment (x1, y1, x2, y2)
+        - double intersection[2]: Array to store the intersection coordinates
     Returns:
         - int: 1 if the intersection is valid and within bounds, 0 otherwise
 */
-int intersection_lines(float angle, float xi, float yi, float line[4], float intersection[2]) {
-    static float ao;
+int intersection_lines(double angle, double xi, double yi, double line[4], double intersection[2]) {
+    // a lot of variables are declared as static to avoid a lot of allocations,
+    // because this function is one of the most called functions in the application
+    static double ao;
+    static double co;
+    static double at;
+    static double bt;
+    static double ct;
+
     ao = tan(angle); // Slope of the ray
 
-    static float bo = -1; // Y-intercept of the ray
-    static float co;
+    static double bo = -1; // Y-intercept of the ray
     co = yi - xi * ao;
 
-    static float at;
     at = line[1] - line[3]; // Slope of the line segment
-    static float bt;
     bt = line[2] - line[0]; // X-component of the line segment direction
-    static float ct;
     ct = line[3] * line[0] - line[1] * line[2]; // Y-intercept of the line segment
     
     // Check if the lines are parallel
@@ -93,10 +96,10 @@ int intersection_lines(float angle, float xi, float yi, float line[4], float int
     intersection[1] = (at * co - ao * ct) / (ao * bt - at * bo);
 
     // Check if the intersection point is within the line segment bounds
-    float maxy = line[1] > line[3] ? line[1] : line[3];
-    float miny = line[1] < line[3] ? line[1] : line[3];
-    float maxx = line[0] > line[2] ? line[0] : line[2];
-    float minx = line[0] < line[2] ? line[0] : line[2];
+    double maxy = line[1] > line[3] ? line[1] : line[3];
+    double miny = line[1] < line[3] ? line[1] : line[3];
+    double maxx = line[0] > line[2] ? line[0] : line[2];
+    double minx = line[0] < line[2] ? line[0] : line[2];
 
     if(intersection[1] > maxy || intersection[1] < miny || intersection[0] < minx || intersection[0] > maxx) {
         return 0; // Intersection is outside the line segment
@@ -127,14 +130,14 @@ int intersection_lines(float angle, float xi, float yi, float line[4], float int
 /*
     Computes the distance from a point to a plane defined by a vector.
     Parameters:
-        - float plane_vector[2]: The vector defining the plane
-        - float x, y: The point coordinates
+        - double plane_vector[2]: The vector defining the plane
+        - double x, y: The point coordinates
     Returns:
-        - float: The distance from the point to the plane
+        - double: The distance from the point to the plane
 */
-float distance_from_plane(float plane_vector[2], float x, float y) {
-    float proj = (plane_vector[0]*x + plane_vector[1]*y) / (plane_vector[0]*plane_vector[0] + plane_vector[1]*plane_vector[1]);
-    float orto_proj[2] = {
+double distance_from_plane(double plane_vector[2], double x, double y) {
+    double proj = (plane_vector[0]*x + plane_vector[1]*y) / (plane_vector[0]*plane_vector[0] + plane_vector[1]*plane_vector[1]);
+    double orto_proj[2] = {
         x - proj * plane_vector[0], // Orthogonal projection of the point
         y - proj * plane_vector[1]
     };

@@ -4,7 +4,7 @@
 
 #include "constants.h"
 #include "gametime.h"
-#include "utils.h"
+#include "algebra.h"
 #include "player.h"
 
 // Global player object

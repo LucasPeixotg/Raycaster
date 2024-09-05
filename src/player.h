@@ -20,16 +20,16 @@ typedef struct {
     This includes the player's position, velocity, dimensions, and movement states.
 */
 typedef struct {
-    float rotation;      // The current rotation of the player (angle)
-    float x;             // The x-coordinate of the player's position
-    float y;             // The y-coordinate of the player's position
-    float z;             // The z-coordinate (height) of the player's position
-    float z_vel;         // The vertical velocity (used for jumping and gravity)
+    double rotation;      // The current rotation of the player (angle)
+    double x;             // The x-coordinate of the player's position
+    double y;             // The y-coordinate of the player's position
+    double z;             // The z-coordinate (height) of the player's position
+    double z_vel;         // The vertical velocity (used for jumping and gravity)
     int is_jumping;      // 1 if the player is in the air (jumping), 0 otherwise
-    float width;         // The width of the player (used for rendering)
-    float height;        // The height of the player (used for rendering)
-    float velocity[2];   // The velocity vector of the player (x and y components)
-    float angle;         // The angle the player is facing
+    double width;         // The width of the player (used for rendering)
+    double height;        // The height of the player (used for rendering)
+    double velocity[2];   // The velocity vector of the player (x and y components)
+    double angle;         // The angle the player is facing
     MoveSet move_set;    // The current movement states (front, back, right, left, jump)
     MoveSet possible_moves; // The possible moves based on the environment (obstacles, etc.)
 } Player;
