@@ -33,13 +33,13 @@ typedef enum {
 #define GRAVITY_ACCELERATION 550;// Gravitational pull, affecting jump mechanics
 
 // Raycasting constants
-#define RAYS_NUMBER (WINDOW_WIDTH) // Number of rays cast, typically equal to screen width
+#define RAYS_NUMBER (WINDOW_WIDTH)  // Number of rays cast, typically equal to screen width
 //#define FOV (3.5 * PI / 5)        // Alternative field of view
-#define FOV (PI / 3)               // Current field of view (60 degrees)
-//#define FOV (2*PI)               // Another alternative FOV covering a full 360 degrees
+#define FOV (PI / 3)                // Current field of view (60 degrees)
+//#define FOV (2*PI)                // Another alternative FOV covering a full 360 degrees
 
 // Rendering mode
-#define FIRST_PERSON 1            // Flag to enable first-person rendering mode
+#define FIRST_PERSON 0            // Flag to enable first-person rendering mode
 
 // Mouse sensitivity for camera movement
 #define MOUSE_SENSITIVITY 2       // Multiplier for mouse movement
