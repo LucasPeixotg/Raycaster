@@ -39,7 +39,7 @@ typedef enum {
 //#define FOV (2*PI)               // Another alternative FOV covering a full 360 degrees
 
 // Rendering mode
-#define FIRST_PERSON 1            // Flag to enable first-person rendering mode
+#define FIRST_PERSON 0            // Flag to enable first-person rendering mode
 
 // Mouse sensitivity for camera movement
 #define MOUSE_SENSITIVITY 2       // Multiplier for mouse movement

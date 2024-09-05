@@ -56,7 +56,7 @@ int intersection_lines(float angle, float xi, float yi, float line[4], float int
 
     static float bo = -1; // Y-intercept of the ray
     static float co;
-    co = yi - xi * tan(angle);
+    co = yi - xi * ao;
 
     static float at;
     at = line[1] - line[3]; // Slope of the line segment
@@ -67,6 +67,26 @@ int intersection_lines(float angle, float xi, float yi, float line[4], float int
     
     // Check if the lines are parallel
     if(ao * bt - at * bo == 0) return 0;
+
+    // check if the line is horizontal
+    if(at == 0) {
+        // Check if the horizontal line is parallel to the Y-axis (same height)
+        if (yi == line[1]) return 0; // The ray is parallel and does not intersect with the line
+
+        // Calculate the intersection
+        intersection[1] = line[1]; // The intersection occurs at the height of the line
+        intersection[0] = xi + (intersection[1] - yi) / ao; // Calculate the X coordinate of the intersection
+
+        // Check if the intersection is within the bounds of the line
+        if (intersection[0] < fmin(line[0], line[2]) || intersection[0] > fmax(line[0], line[2]))
+            return 0; 
+
+        // Check if the intersection is behind player's eyes
+        if((angle < 0 && line[1] > yi) || (angle > 0 && line[1] < yi)) 
+            return 0;
+
+        return 1;
+    }
 
     // Calculate intersection point
     intersection[0] = (bo * ct - bt * co) / (ao * bt - at * bo);

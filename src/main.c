@@ -9,10 +9,59 @@
 #include "gametime.h"  // Time handling functions
 
 // Map definition: simple 2D array representing lines with their RGB color values
-const int map_lines = 2; 
+const int map_lines = 27; 
 float map[100][7] = {
-    {10, 10, 10, 100, 0, 255, 0},   // Line 1: start(x, y), end(x, y), color(R, G, B)
-    {10, 10, 100, 9, 255, 0, 0},    // Line 2: start(x, y), end(x, y), color(R, G, B)
+    // Horizontal lines
+    {10, 10, 110, 10, 255, 0, 0},    // Line 1: Horizontal red line (top boundary)
+    {10, 110, 110, 110, 255, 0, 0},  // Line 2: Horizontal red line (bottom boundary)
+    
+    // Vertical lines
+    {10, 10, 10, 110, 0, 255, 0},    // Line 3: Vertical green line (left boundary)
+    {110, 10, 110, 110, 0, 255, 0},  // Line 4: Vertical green line (right boundary)
+    
+    // Diagonal lines
+    {20, 20, 80, 80, 0, 0, 255},     // Line 5: Blue diagonal from (20, 20) to (80, 80)
+    {80, 20, 20, 80, 0, 0, 255},     // Line 6: Blue diagonal from (80, 20) to (20, 80)
+    
+    // Complex shapes
+    {120, 20, 180, 20, 255, 255, 0}, // Line 7: Yellow horizontal line
+    {180, 20, 180, 80, 255, 255, 0}, // Line 8: Yellow vertical line
+    {180, 80, 120, 80, 255, 255, 0}, // Line 9: Yellow horizontal line
+    {120, 80, 120, 20, 255, 255, 0}, // Line 10: Yellow vertical line
+    
+    // L-shape structure
+    {50, 150, 150, 150, 255, 0, 255},// Line 11: Magenta horizontal
+    {150, 150, 150, 200, 255, 0, 255},// Line 12: Magenta vertical
+
+    // Maze-like pattern
+    {60, 120, 60, 180, 0, 255, 255}, // Line 13: Cyan vertical line (maze part)
+    {60, 180, 120, 180, 0, 255, 255},// Line 14: Cyan horizontal line
+    {120, 180, 120, 130, 0, 255, 255},// Line 15: Cyan vertical line (maze part)
+
+    // Cross structure
+    {130, 60, 190, 60, 128, 128, 128}, // Line 16: Gray horizontal line
+    {160, 30, 160, 90, 128, 128, 128}, // Line 17: Gray vertical line
+
+    // Outer box
+    {200, 200, 300, 200, 100, 100, 255}, // Line 18: Blue horizontal
+    {300, 200, 300, 300, 100, 100, 255}, // Line 19: Blue vertical
+    {300, 300, 200, 300, 100, 100, 255}, // Line 20: Blue horizontal
+    {200, 300, 200, 200, 100, 100, 255}, // Line 21: Blue vertical
+
+    // Open spaces
+    {250, 50, 300, 50, 255, 165, 0},   // Line 22: Orange horizontal line
+    {300, 50, 300, 100, 255, 165, 0},  // Line 23: Orange vertical line
+    {250, 100, 300, 100, 255, 165, 0}, // Line 24: Orange horizontal line
+
+    // Additional random lines
+    {50, 250, 100, 250, 255, 192, 203}, // Line 25: Pink horizontal line
+    {100, 250, 100, 290, 255, 192, 203},// Line 26: Pink vertical line
+
+    // Other structures
+    {210, 210, 290, 230, 70, 130, 180} // Line 27: Steel blue diagonal line
+
+    // Remaining lines (empty for now)
+    // Continue adding lines if needed...
 };
 
 // External variables defined in player.h
@@ -199,6 +248,12 @@ void render_camera(SDL_Renderer* renderer) {
         smallest_intersection[0] = 0;
         smallest_intersection[1] = 0;
         smallest_intersection[2] = INFINITY;
+    }
+
+    if(!FIRST_PERSON) {
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Set ray color for debugging
+        
+        SDL_RenderDrawLine(renderer, player.x + 10*cos(player.angle) - 10*plane_vector[0], player.y+10*sin(player.angle) - 10*plane_vector[1], player.x + 10*cos(player.angle) + 10*plane_vector[0], player.y+10*sin(player.angle) + 10*plane_vector[1]); // Draw ray from player to intersection
     }
 }
 
