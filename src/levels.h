@@ -3,6 +3,8 @@
 
 #include "section.h"
 
-struct section* create_level_1();
+// Function to create the first level of the game
+// Returns a pointer to the newly created section representing level 1
+struct section* create_level_1(void);
 
-#endif
+#endif  // LEVELS_H
