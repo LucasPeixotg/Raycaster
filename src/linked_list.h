@@ -18,12 +18,12 @@ struct linked_list_of_lines {
 struct linked_list_of_lines* linked_list_create(void);
 
 /*
-    Appends a new line to the end of the linked list.
+    Add a new line to the start of the linked list.
     Parameters:
         - struct linked_list_of_lines* list: The linked list to append the line to
         - struct line new_line: The line to be added to the list
 */
-void linked_list_append_line(struct linked_list_of_lines* list, struct line new_line);
+int linked_list_add_line(struct linked_list_of_lines* list, struct line new_line);
 
 /*
     Destroys the linked list and frees all allocated resources.
