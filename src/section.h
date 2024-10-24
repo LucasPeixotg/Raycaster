@@ -3,24 +3,35 @@
 
 #include <SDL2/SDL.h> // SDL library for graphics
 #include "algebra.h"
-#include "linked_list.h"
 #include "player.h"
 
 // Structure representing a door in the section
 struct door {
     struct line position;      // Position and dimensions of the door
-    struct door* next_door;    // Pointer to the next door
+    struct door* dest;         // Pointer to the next door
     struct section* room;      // Pointer to the section (room) this door belongs to
 };
 
 // Structure representing a section (room)
 struct section {
+    int door_max;
+    int door_count;
     struct door* doors;                        // List of doors in the section
-    struct linked_list_of_lines* walls;        // List of walls in the section
+    
+    int wall_max;
+    int wall_count;
+    struct line* walls;        // List of walls in the section
 };
 
 // Creates a new section with default values
-struct section* section_create(void);
+struct section* section_create(int door_max, int wall_max);
+
+// return error or not
+int section_add_door(struct section* section, struct line door, struct door* dest);
+
+// return error or not
+void section_add_wall(struct section* section, struct line wall);
+
 
 /*
     Renders a section and handles rendering additional sections if needed.
