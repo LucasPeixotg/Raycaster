@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdio.h>
 #include "constants.h"
+#include "algebra.h"
 
 /**
  * Normalizes a 2D vector to have a unit length (magnitude of 1).
@@ -69,8 +70,8 @@ void normalize_angle(double* angle) {
  * @param intersection An array to store the coordinates of the intersection point (output).
  * @return 1 if the intersection is valid and within the bounds of the line segment, 0 otherwise.
  */
-int intersection_lines(double angle, double xi, double yi, double line[4], double intersection[2]) {
-    // a lot of variables are declared as static to avoid a lot of allocations,
+int intersection_lines(double angle, double xi, double yi, struct line line, double intersection[2]) {
+   // a lot of variables are declared as static to avoid a lot of allocations,
     // because this function is one of the most called functions in the application
     static double ao;
     static double co;
@@ -83,9 +84,9 @@ int intersection_lines(double angle, double xi, double yi, double line[4], doubl
     static double bo = -1; // Y-intercept of the ray
     co = yi - xi * ao;
 
-    at = line[1] - line[3]; // Slope of the line segment
-    bt = line[2] - line[0]; // X-component of the line segment direction
-    ct = line[3] * line[0] - line[1] * line[2]; // Y-intercept of the line segment
+    at = line.y0 - line.yf; // Slope of the line segment
+    bt = line.xf - line.x0; // X-component of the line segment direction
+    ct = line.yf * line.x0 - line.y0 * line.xf; // Y-intercept of the line segment
     
     // Check if the lines are parallel
     if(ao * bt - at * bo == 0) return 0;
@@ -93,18 +94,18 @@ int intersection_lines(double angle, double xi, double yi, double line[4], doubl
     // check if the line is horizontal
     if(at == 0) {
         // Check if the horizontal line is parallel to the Y-axis (same height)
-        if (yi == line[1]) return 0; // The ray is parallel and does not intersect with the line
+        if (yi == line.y0) return 0; // The ray is parallel and does not intersect with the line
 
         // Calculate the intersection
-        intersection[1] = line[1]; // The intersection occurs at the height of the line
+        intersection[1] = line.y0; // The intersection occurs at the height of the line
         intersection[0] = xi + (intersection[1] - yi) / ao; // Calculate the X coordinate of the intersection
 
         // Check if the intersection is within the bounds of the line
-        if (intersection[0] < fmin(line[0], line[2]) || intersection[0] > fmax(line[0], line[2]))
+        if (intersection[0] < fmin(line.x0, line.xf) || intersection[0] > fmax(line.x0, line.xf))
             return 0; 
 
         // Check if the intersection is behind player's eyes
-        if((angle < 0 && line[1] > yi) || (angle > 0 && line[1] < yi)) 
+        if((angle < 0 && line.y0 > yi) || (angle > 0 && line.y0 < yi)) 
             return 0;
 
         return 1;
@@ -115,10 +116,10 @@ int intersection_lines(double angle, double xi, double yi, double line[4], doubl
     intersection[1] = (at * co - ao * ct) / (ao * bt - at * bo);
 
     // Check if the intersection point is within the line segment bounds
-    double maxy = line[1] > line[3] ? line[1] : line[3];
-    double miny = line[1] < line[3] ? line[1] : line[3];
-    double maxx = line[0] > line[2] ? line[0] : line[2];
-    double minx = line[0] < line[2] ? line[0] : line[2];
+    double maxy = line.y0 > line.yf ? line.y0 : line.yf;
+    double miny = line.y0 < line.yf ? line.y0 : line.yf;
+    double maxx = line.x0 > line.xf ? line.x0 : line.xf;
+    double minx = line.x0 < line.xf ? line.x0 : line.xf;
 
     if(intersection[1] > maxy || intersection[1] < miny || intersection[0] < minx || intersection[0] > maxx) {
         return 0; // Intersection is outside the line segment

@@ -49,7 +49,7 @@ double distance_from_line(double plane_vector[2], double x, double y);
  * @param intersection An array to store the coordinates of the intersection point (output).
  * @return 1 if the intersection is valid and within the bounds of the line segment, 0 otherwise.
  */
-int intersection_lines(double angle, double xi, double yi, double line[4], double intersection[2]);
+int intersection_lines(double angle, double xi, double yi, struct line line, double intersection[2]);
 
 /**
  * Normalizes an angle to fall within the range [-PI, PI].

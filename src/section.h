@@ -60,7 +60,7 @@ int section_add_wall(struct section* section, struct line wall);
  * @param renderer The SDL renderer used for drawing.
  * @param player The player object used for casting rays based on its position and looking angle.
  */
-void section_render(struct section* section, SDL_Renderer* renderer, struct player* player);
+void section_render(struct section* section, SDL_Renderer* renderer, struct player player);
 
 /**
  * Checks for collision between the player and the section's walls.

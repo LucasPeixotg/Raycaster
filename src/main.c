@@ -7,29 +7,8 @@
 #include "player.h"    // Player structure and functions
 #include "algebra.h"     // Utility functions for the game
 #include "gametime.h"  // Time handling functions
-
-// Map definition: simple 2D array representing lines with their RGB color values
-const int map_lines = 17;
-double map[100][7] = {
-    {10, 10, 300, 10, 255, 0, 0},       // Top horizontal wall
-    {10, 10, 10, 300, 255, 0, 0},       // Left vertical wall
-    {300, 10, 300, 300, 255, 0, 0},     // Right vertical wall
-    // Internal walls
-    {50,  10,  50,  100, 0,   255, 0},       // Vertical wall left
-    {50,  100, 100, 100, 0,   255, 0},     // Horizontal section
-    {100, 100, 100, 200, 0,   255, 0},    // Vertical wall middle left
-    {150, 50,  150, 150, 0,   255, 0},     // Vertical wall middle
-    {150, 150, 200, 150, 0,   255, 0},    // Horizontal section
-    {100, 200, 200, 200, 0,   0,   255},    // Horizontal wall middle bottom
-    {200, 200, 200, 250, 0,   0,   255},    // Vertical wall near bottom
-    {200, 250, 250, 250, 0,   0,   255},    // Bottom right horizontal section
-    {250, 50,  250, 150, 255, 255, 0},   // Vertical wall middle right
-    {250, 50,  300, 50,  255, 255, 0},    // Top-right horizontal wall
-    {150, 150, 150, 200, 0,   255, 255},  // Vertical middle wall extension
-    {200, 50,  150, 50,  0,   255, 255},    // Horizontal upper middle wall
-    {50,  250, 150, 250, 0,   255, 255},   // Horizontal lower middle wall
-    {50,  150, 50,  200, 255, 0,   255},    // Vertical left-bottom wall
-};
+#include "section.h"
+#include "levels.h"
 
 
 // External variables defined in player.h
@@ -152,10 +131,10 @@ void update() {
     Renders the 2D top-down map showing lines from the map array.
     Only renders if not in first-person mode.
 */
-void render_map(SDL_Renderer* renderer) {
+void render_map(SDL_Renderer* renderer, struct section* section) {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Set color to white for lines
-    for(int i = 0; i < map_lines; i++) { // Loop through all lines in the map
-        SDL_RenderDrawLine(renderer, map[i][0], map[i][1], map[i][2], map[i][3]); // Draw each line
+    for(int i = 0; i < section->wall_count; i++) { // Loop through all lines in the map
+        SDL_RenderDrawLine(renderer, section->walls[i].x0, section->walls[i].y0, section->walls[i].xf, section->walls[i].yf); // Draw each line
     }
 }
 
@@ -164,65 +143,8 @@ void render_map(SDL_Renderer* renderer) {
     Casts rays from the player's viewpoint, calculates intersections with walls, 
     and renders vertical slices representing walls.
 */
-void render_camera(SDL_Renderer* renderer) {
-    double intersection[2]; // Array to store intersection points
-    double angle_off =  FOV / RAYS_NUMBER; // Calculate angle step for each ray
-
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Set draw color for rays
-    double smallest_intersection[4] = { 0 , 0 , INFINITY, player.angle}; // Track closest intersection
-    double angle, height, distance;
-    double plane_vector[2] = {
-        cos(player.angle + PI/2), // Vector perpendicular to player's view direction
-        sin(player.angle + PI/2)
-    };
-
-    // Cast rays to detect walls
-    for(int i = 0; i < RAYS_NUMBER; i++) {
-        int wall_index = 0; // Index of the closest wall for this ray
-        for(int j = 0; j < map_lines; j++) { // Loop through all walls in the map
-            angle = player.angle + (FOV/2) - (angle_off * i); // Calculate ray angle
-            normalize_angle(&angle); // Ensure angle is within 0 to 2*PI
-            if(intersection_lines(angle, player.x, player.y, map[j], intersection)) { // Check if ray hits a wall
-                distance = distance_from_line(plane_vector, player.x - intersection[0], player.y - intersection[1]); // Calculate perpendicular distance to wall
-                if(distance < smallest_intersection[2]) { // Track the closest intersection
-                    smallest_intersection[0] = intersection[0];
-                    smallest_intersection[1] = intersection[1];
-                    smallest_intersection[2] = distance;
-                    smallest_intersection[3] = angle;
-                    wall_index = j; // Store index of the wall hit
-                }
-            }
-        }
-
-        // If an intersection was found, render the wall slice
-        if(smallest_intersection[2] != INFINITY) {
-            float color = smallest_intersection[2] > 600 ? 0.01 : (1 - smallest_intersection[2] / 600); // Diminish brightness with distance
-            
-            if(FIRST_PERSON) {
-                SDL_SetRenderDrawColor(renderer, map[wall_index][4]*color, map[wall_index][5]*color, map[wall_index][6]*color, 255); // Set wall color
-                height = WINDOW_HEIGHT / (smallest_intersection[2] / WALL_SIZE); // Calculate wall height
-
-                // Calculate vertical position of the wall slice
-                int yi = WINDOW_HEIGHT - FLOOR_SIZE - height / 2;
-                float jump_offset = + 0.7 * player.z * cos(((i - WINDOW_WIDTH/8) * FOV / WINDOW_WIDTH) / 4); // Adjust wall slice based on player's jump offset
-                SDL_RenderDrawLine(renderer, WINDOW_WIDTH - i, yi + player.z + jump_offset, WINDOW_WIDTH - i, yi + height + player.z + jump_offset); // Draw vertical slice of wall
-            } else {
-                SDL_SetRenderDrawColor(renderer, 255 * color, 255 * color, 255 * color, 255); // Set ray color for debugging
-                SDL_RenderDrawLine(renderer, player.x, player.y, smallest_intersection[0], smallest_intersection[1]); // Draw ray from player to intersection
-            }
-        }
-
-        // Reset smallest intersection values for the next ray
-        smallest_intersection[0] = 0;
-        smallest_intersection[1] = 0;
-        smallest_intersection[2] = INFINITY;
-    }
-
-    if(!FIRST_PERSON) {
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Set ray color for debugging
-        
-        SDL_RenderDrawLine(renderer, player.x + 10*cos(player.angle) - 10*plane_vector[0], player.y+10*sin(player.angle) - 10*plane_vector[1], player.x + 10*cos(player.angle) + 10*plane_vector[0], player.y+10*sin(player.angle) + 10*plane_vector[1]); // Draw ray from player to intersection
-    }
+void render_camera(SDL_Renderer* renderer, struct section* section) {
+    section_render(section, renderer, player);
 }
 
 /* 
@@ -254,14 +176,14 @@ void render_background(SDL_Renderer* renderer) {
     Parameters: 
         - SDL_Renderer* renderer: the renderer used for drawing
 */
-void render(SDL_Renderer* renderer) {
+void render(SDL_Renderer* renderer, struct section* section) {
     render_background(renderer); // Render the sky and floor
 
+    render_camera(renderer, section); // Render the 3D camera view using raycasting
+
     if(!FIRST_PERSON) 
-        render_map(renderer); // Render the map if not in first-person mode
-
-    render_camera(renderer); // Render the 3D camera view using raycasting
-
+        render_map(renderer, section); // Render the map if not in first-person mode
+    
     SDL_RenderPresent(renderer); // Present the rendered frame (swap buffers)
 }
 
@@ -290,10 +212,12 @@ int main(void) {
 
     setup(); // Initialize game objects (e.g., player)
 
+    struct section* section = create_level_1();
+
     while(game_is_running) { // Main game loop
         process_inputs(); // Handle user inputs (keyboard and mouse)
         update(); // Update game state (e.g., player position)
-        render(renderer); // Render the current game frame
+        render(renderer, section); // Render the current game frame
     }
 
     destroy_window(window, renderer); // Clean up and exit
