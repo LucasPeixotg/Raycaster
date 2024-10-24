@@ -2,7 +2,11 @@
 
 #include <stdlib.h>
 
-// Creates a new linked list and returns a pointer to it
+/**
+ * Creates a new linked list and returns a pointer to it.
+ * 
+ * @return struct linked_list_of_lines* Pointer to the newly created linked list, or NULL if memory allocation fails.
+ */
 struct linked_list_of_lines* linked_list_create(void) {
     struct linked_list_of_lines* new = malloc(sizeof(struct linked_list_of_lines));
     if(new == NULL) return NULL;
@@ -10,14 +14,13 @@ struct linked_list_of_lines* linked_list_create(void) {
     return new;
 }
 
-/*
-    Add a new line to the start of the linked list.
-    Parameters:
-        - struct line value: The content of the new node
-        - struct line_node* next: The pointer to the next node
-    Returns:
-        - struct line_node*: pointer to the created node
-*/
+/**
+ * Creates a new node with a given line value and pointer to the next node.
+ * 
+ * @param value The content (line) of the new node.
+ * @param next A pointer to the next node in the list.
+ * @return struct line_node* Pointer to the newly created node, or NULL if memory allocation fails.
+ */
 static struct line_node* create_line_node(struct line value, struct line_node* next) {
     struct line_node* new = malloc(sizeof(struct line_node));
     if(new == NULL) return NULL;
@@ -26,14 +29,13 @@ static struct line_node* create_line_node(struct line value, struct line_node* n
     return new;
 }
 
-/*
-    Add a new line to the start of the linked list.
-    Parameters:
-        - struct linked_list_of_lines* list: The linked list to append the line to
-        - struct line new_line: The line to be added to the list
-    Returns:
-        - int: 0 if the insertion was succesful, 1 otherwise
-*/
+/**
+ * Adds a new line to the start of the linked list.
+ * 
+ * @param list The linked list to append the line to.
+ * @param new_line The line to be added to the list.
+ * @return int 0 if the insertion was successful, 1 otherwise.
+ */
 int linked_list_add_line(struct linked_list_of_lines* list, struct line new_line) {
     struct line_node* new_head = create_line_node(new_line, list->head);
     if(new_head == NULL) return 1;
@@ -41,23 +43,22 @@ int linked_list_add_line(struct linked_list_of_lines* list, struct line new_line
     return 0;
 }
 
-/*
-    Static function to help destroy a linked list.
-    Recursively freeing nodes
-    Parameters:
-        - struct line_node* first: First node of the sequence to be dealocated
-*/
+/**
+ * Recursively frees nodes in the linked list starting from the first node.
+ * 
+ * @param first The first node of the sequence to be deallocated.
+ */
 void destroy_list_recursive(struct line_node* first) {
     if(first == NULL) return;
     destroy_list_recursive(first->next);
     free(first);
 }
 
-/*
-    Destroys the linked list and frees all allocated resources.
-    Parameters:
-        - struct linked_list_of_lines* list: The linked list to be destroyed
-*/
+/**
+ * Destroys the linked list and frees all allocated resources.
+ * 
+ * @param list The linked list to be destroyed.
+ */
 void linked_list_destroy(struct linked_list_of_lines* list) {
     if(list == NULL) return;
     if(list->head != NULL) destroy_list_recursive(list->head);

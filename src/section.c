@@ -2,7 +2,13 @@
 
 #include <malloc.h>
 
-// Creates a new section with default values
+/**
+ * Creates a new section with default values.
+ * 
+ * @param door_max The maximum number of doors allowed in the section.
+ * @param wall_max The maximum number of walls allowed in the section.
+ * @return struct section* Pointer to the newly created section, or NULL if allocation fails.
+ */
 struct section* section_create(int door_max, int wall_max) {
     struct section* new = malloc(sizeof(struct section));
     if(new == NULL) return NULL; 
@@ -28,7 +34,14 @@ struct section* section_create(int door_max, int wall_max) {
     return new;
 }
 
-// return error or not
+/**
+ * Adds a door to the specified section.
+ * 
+ * @param section The section to which the door will be added.
+ * @param door The line representing the door's position and dimensions.
+ * @param dest Pointer to the next door.
+ * @return int 0 if the addition was successful, or 1 if an error occurred.
+ */
 int section_add_door(struct section* section, struct line door, struct door* dest) {
     if(section->door_count == section->door_max) return 1;
     section->doors[section->door_count].dest = dest;
@@ -37,7 +50,13 @@ int section_add_door(struct section* section, struct line door, struct door* des
     return 0; 
 }
 
-// return error or not
+/**
+ * Adds a wall to the specified section.
+ * 
+ * @param section The section to which the wall will be added.
+ * @param wall The line representing the wall's position and dimensions.
+ * @return int 0 if the addition was successful, or 1 if an error occurred.
+ */
 int section_add_wall(struct section* section, struct line wall) {
     if(section->wall_count == section->wall_max) return 1;
     section->walls[section->wall_count] = wall;

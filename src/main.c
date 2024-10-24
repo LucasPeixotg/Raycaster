@@ -183,7 +183,7 @@ void render_camera(SDL_Renderer* renderer) {
             angle = player.angle + (FOV/2) - (angle_off * i); // Calculate ray angle
             normalize_angle(&angle); // Ensure angle is within 0 to 2*PI
             if(intersection_lines(angle, player.x, player.y, map[j], intersection)) { // Check if ray hits a wall
-                distance = distance_from_plane(plane_vector, player.x - intersection[0], player.y - intersection[1]); // Calculate perpendicular distance to wall
+                distance = distance_from_line(plane_vector, player.x - intersection[0], player.y - intersection[1]); // Calculate perpendicular distance to wall
                 if(distance < smallest_intersection[2]) { // Track the closest intersection
                     smallest_intersection[0] = intersection[0];
                     smallest_intersection[1] = intersection[1];

@@ -34,42 +34,42 @@ struct player {
     struct move_set possible_moves; // The possible moves based on the environment (obstacles, etc.)
 };
 
-/*
-    Updates the player's state based on the elapsed time.
-    This function calculates the new position and velocity of the player,
-    considering factors such as movement input, jumping, and gravity.
-    Parameters:
-        - double delta_time: The time elapsed since the last update, used for time-based calculations
-*/
-void update_player(double delta_time);
-
-/*
-    Renders the player on the screen using the provided renderer.
-    This function draws the player as a rectangle and an additional line to show the direction the player is facing.
-    Parameters:
-        - SDL_Renderer* renderer: The renderer used to draw the player on the screen
-*/
-void render_player(SDL_Renderer* renderer);
-
-/*
-    Initializes the player's properties.
-    This function sets up the player's position, dimensions, movement states, and other initial values.
-*/
+/**
+ * Initializes player properties.
+ * Sets initial position, size, and movement attributes.
+ */
 void setup_player(void);
 
-/*
-    Calculates and updates the player's velocity based on current movement inputs.
-    This function adjusts the player's velocity according to the direction of movement and other factors like jumping.
-*/
+/**
+ * Updates player position and state based on elapsed time.
+ * Applies gravity and adjusts movement and rotation.
+ * 
+ * @param delta_time The time elapsed since the last update.
+ */
+void update_player(double delta_time);
+
+/**
+ * Renders the player on the screen.
+ * Draws player as a rectangle and a line indicating facing direction.
+ * 
+ * @param renderer The renderer used for drawing.
+ */
+void render_player(SDL_Renderer* renderer);
+
+
+/**
+ * Updates player velocity based on current movement inputs.
+ * Calculates direction and speed of movement.
+ */
 void set_move_player();
 
-/*
-    Rotates the player to face a target point specified by the mouse coordinates.
-    This function adjusts the player's facing direction based on the position of the mouse cursor.
-    Parameters:
-        - int x: The x-coordinate of the target point (mouse position)
-        - int y: The y-coordinate of the target point (mouse position)
-*/
+/**
+ * Rotates player towards a specific point.
+ * Calculates the angle from player to the target point.
+ * 
+ * @param x The x-coordinate of the target point.
+ * @param y The y-coordinate of the target point.
+ */
 void rotate_player_towards(int x, int y);
 
 #endif

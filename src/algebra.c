@@ -2,35 +2,53 @@
 #include <stdio.h>
 #include "constants.h"
 
-/*
-    Normalizes a 2D vector to unit length.
-    Ensures that the vector maintains its direction but has a length of 1.
-    Parameters:
-        - double vector2[2]: The vector to be normalized
-*/
+/**
+ * Normalizes a 2D vector to have a unit length (magnitude of 1).
+ * This function ensures that the direction of the vector is maintained while adjusting its length.
+ * 
+ * @param vector A 2D vector represented as an array of 2 doubles.
+ */
 void normalize_vector2(double vector2[2]) {
     double len = sqrt(vector2[0]*vector2[0] + vector2[1]*vector2[1]); // Calculate vector length
     vector2[0] = vector2[0] / (len ? len : 1); // Avoid division by zero
     vector2[1] = vector2[1] / (len ? len : 1); // Normalize each component
 }
 
-/*
-    Computes the magnitude (length) of a 2D vector.
-    Parameters:
-        - double vector2[2]: The vector whose magnitude is to be computed
-    Returns:
-        - double: The magnitude of the vector
-*/
+/**
+ * Computes the magnitude (length) of a 2D vector.
+ * This function calculates how long the vector is, regardless of its direction.
+ * 
+ * @param vector A 2D vector represented as an array of 2 doubles.
+ * @return The magnitude (length) of the vector.
+ */
 double abs_vector2(double vector2[2]) {
     return (double) sqrt(vector2[0]*vector2[0] + vector2[1]*vector2[1]); // Calculate magnitude
 }
 
-/*
-    Normalizes an angle to the range [-PI, PI].
-    Ensures that the angle stays within the specified bounds.
-    Parameters:
-        - double* angle: Pointer to the angle to be normalized
-*/
+/**
+ * Computes the distance from a point to a line defined by a 2D vector.
+ * This function calculates the shortest distance from the point to the line represented by the vector.
+ * 
+ * @param plane_vector A 2D vector defining the line.
+ * @param x The x-coordinate of the point.
+ * @param y The y-coordinate of the point.
+ * @return The perpendicular distance from the point to the plane.
+ */
+double distance_from_line(double plane_vector[2], double x, double y) {
+    double proj = (plane_vector[0]*x + plane_vector[1]*y) / (plane_vector[0]*plane_vector[0] + plane_vector[1]*plane_vector[1]);
+    double orto_proj[2] = {
+        x - proj * plane_vector[0], // Orthogonal projection of the point
+        y - proj * plane_vector[1]
+    };
+    return abs_vector2(orto_proj); // Return the magnitude of the orthogonal projection
+}
+
+/**
+ * Normalizes an angle to fall within the range [-PI, PI].
+ * This function ensures that the angle is adjusted to stay within the standard circular range.
+ * 
+ * @param angle A pointer to the angle to be normalized (in radians).
+ */
 void normalize_angle(double* angle) {
     if(*angle < -PI) {
         *angle += 2 * PI; // Adjust angle if it's less than -PI
@@ -39,17 +57,18 @@ void normalize_angle(double* angle) {
     }
 }
 
-/*
-    Computes the intersection point of a ray and a line segment.
-    Checks if the intersection point lies within the bounds of the line segment.
-    Parameters:
-        - double angle: The angle of the ray
-        - double xi, yi: The starting coordinates of the ray
-        - double line[4]: Coordinates of the line segment (x1, y1, x2, y2)
-        - double intersection[2]: Array to store the intersection coordinates
-    Returns:
-        - int: 1 if the intersection is valid and within bounds, 0 otherwise
-*/
+/**
+ * Determines the intersection point of a ray with a line segment.
+ * This function calculates where a ray, defined by an angle and starting point, intersects a line segment,
+ * if at all, and checks if the intersection is within the bounds of the segment.
+ * 
+ * @param angle The angle of the ray (in radians).
+ * @param xi The starting x-coordinate of the ray.
+ * @param yi The starting y-coordinate of the ray.
+ * @param line An array representing the coordinates of the line segment (x1, y1, x2, y2).
+ * @param intersection An array to store the coordinates of the intersection point (output).
+ * @return 1 if the intersection is valid and within the bounds of the line segment, 0 otherwise.
+ */
 int intersection_lines(double angle, double xi, double yi, double line[4], double intersection[2]) {
     // a lot of variables are declared as static to avoid a lot of allocations,
     // because this function is one of the most called functions in the application
@@ -125,21 +144,4 @@ int intersection_lines(double angle, double xi, double yi, double line[4], doubl
     }
 
     return 1; // Default return value (should not be reached)
-}
-
-/*
-    Computes the distance from a point to a plane defined by a vector.
-    Parameters:
-        - double plane_vector[2]: The vector defining the plane
-        - double x, y: The point coordinates
-    Returns:
-        - double: The distance from the point to the plane
-*/
-double distance_from_plane(double plane_vector[2], double x, double y) {
-    double proj = (plane_vector[0]*x + plane_vector[1]*y) / (plane_vector[0]*plane_vector[0] + plane_vector[1]*plane_vector[1]);
-    double orto_proj[2] = {
-        x - proj * plane_vector[0], // Orthogonal projection of the point
-        y - proj * plane_vector[1]
-    };
-    return abs_vector2(orto_proj); // Return the magnitude of the orthogonal projection
 }
