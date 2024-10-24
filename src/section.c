@@ -95,8 +95,8 @@ void section_render(struct section* section, SDL_Renderer* renderer, struct play
         for(int j = 0; j < section->wall_max; j++) { // Loop through all walls in the map
             angle = player.angle + (FOV/2) - (angle_off * i); // Calculate ray angle
             normalize_angle(&angle); // Ensure angle is within 0 to 2*PI
-            if(intersection_lines(angle, player.x, player.y, section->walls[j], intersection)) { // Check if ray hits a wall
-                distance = distance_from_line(plane_vector, player.x - intersection[0], player.y - intersection[1]); // Calculate perpendicular distance to wall
+            if(intersection_lines(angle, player.position.x, player.position.y, section->walls[j], intersection)) { // Check if ray hits a wall
+                distance = distance_from_line(plane_vector, player.position.x - intersection[0], player.position.y - intersection[1]); // Calculate perpendicular distance to wall
                 if(distance < smallest_intersection[2]) { // Track the closest intersection
                     smallest_intersection[0] = intersection[0];
                     smallest_intersection[1] = intersection[1];
@@ -116,11 +116,10 @@ void section_render(struct section* section, SDL_Renderer* renderer, struct play
 
                 // Calculate vertical position of the wall slice
                 int yi = WINDOW_HEIGHT - FLOOR_SIZE - height / 2;
-                float jump_offset = + 0.7 * player.z * cos(((i - WINDOW_WIDTH/8) * FOV / WINDOW_WIDTH) / 4); // Adjust wall slice based on player's jump offset
-                SDL_RenderDrawLine(renderer, WINDOW_WIDTH - i, yi + player.z + jump_offset, WINDOW_WIDTH - i, yi + height + player.z + jump_offset); // Draw vertical slice of wall
+                SDL_RenderDrawLine(renderer, WINDOW_WIDTH - i, yi, WINDOW_WIDTH - i, yi + height); // Draw vertical slice of wall
             } else {
                 SDL_SetRenderDrawColor(renderer, 255 * color, 255 * color, 255 * color, 255); // Set ray color for debugging
-                SDL_RenderDrawLine(renderer, player.x, player.y, smallest_intersection[0], smallest_intersection[1]); // Draw ray from player to intersection
+                SDL_RenderDrawLine(renderer, player.position.x, player.position.y, smallest_intersection[0], smallest_intersection[1]); // Draw ray from player to intersection
             }
         }
 
@@ -132,8 +131,25 @@ void section_render(struct section* section, SDL_Renderer* renderer, struct play
 
     if(!FIRST_PERSON) {
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Set ray color for debugging
-        SDL_RenderDrawLine(renderer, player.x + 10*cos(player.angle) - 10*plane_vector[0], player.y+10*sin(player.angle) - 10*plane_vector[1], player.x + 10*cos(player.angle) + 10*plane_vector[0], player.y+10*sin(player.angle) + 10*plane_vector[1]); // Draw ray from player to intersection
+        SDL_RenderDrawLine(renderer, player.position.x + 10*cos(player.angle) - 10*plane_vector[0], player.position.y+10*sin(player.angle) - 10*plane_vector[1], player.position.x + 10*cos(player.angle) + 10*plane_vector[0], player.position.y+10*sin(player.angle) + 10*plane_vector[1]); // Draw ray from player to intersection
     }
 
 }
 
+
+/**
+ * Checks for collision between the player and the section's walls.
+ * Also checks if the player is attempting to leave the current section through a door.
+ * If a door is found, the function returns the section that the player is entering.
+ * The desired point is updated to be the real destination
+ * 
+ * @param section The current section.
+ * @param previous_position The point where the player is.
+ * @param desired_position The point the player is trying to reach.
+ * @return struct section* The section the player is at after walking.
+ */
+struct section* section_update(struct section* section, struct point previous_position, struct point* desired_position) {
+    printf("%lf %lf -> %lf %lf\n", previous_position.x, previous_position.y, desired_position->x, desired_position->y);
+
+    return section;
+}

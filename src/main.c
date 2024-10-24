@@ -95,7 +95,6 @@ void process_inputs() {
             if(event.key.keysym.sym == SDLK_d) player.move_set.right = TRUE;  // D moves player right
             if(event.key.keysym.sym == SDLK_s) player.move_set.back = TRUE;   // S moves player back
             if(event.key.keysym.sym == SDLK_a) player.move_set.left = TRUE;   // A moves player left
-            if(event.key.keysym.sym == SDLK_SPACE) player.move_set.jump = TRUE; // Space makes the player jump
             if(event.key.keysym.sym == SDLK_r) setup_player(); // R resets player position
 
             break;
@@ -104,7 +103,6 @@ void process_inputs() {
             if(event.key.keysym.sym == SDLK_d) player.move_set.right = FALSE;
             if(event.key.keysym.sym == SDLK_s) player.move_set.back = FALSE;
             if(event.key.keysym.sym == SDLK_a) player.move_set.left = FALSE;
-            if(event.key.keysym.sym == SDLK_SPACE) player.move_set.jump = FALSE;
             break;
 
         case SDL_MOUSEMOTION: // Mouse movement event
@@ -122,9 +120,12 @@ void process_inputs() {
     Update game state based on time elapsed (delta time).
     Mainly updates player position and movement.
 */
-void update() {
+void update(struct section** section) {
     double delta = get_delta_time(); // Get time elapsed since last frame
-    update_player(delta); // Update player position and physics based on input and delta time
+    struct point new_position = update_player(delta); // Update player position and physics based on input and delta time
+
+    *section = section_update(*section, player.position, &new_position);
+    player.position = new_position;
 }
 
 void draw_circle(SDL_Renderer* renderer, int32_t x, int32_t y, int32_t radius)
@@ -168,7 +169,7 @@ void render_map(SDL_Renderer* renderer, struct section* section) {
         SDL_RenderDrawLine(renderer, section->walls[i].x0, section->walls[i].y0, section->walls[i].xf, section->walls[i].yf); // Draw each line
     }
     if(!FIRST_PERSON) {
-        draw_circle(renderer, player.x, player.y, PLAYER_WIDTH);
+        draw_circle(renderer, player.position.x, player.position.y, PLAYER_WIDTH);
     }
 
 }
@@ -191,19 +192,14 @@ void render_background(SDL_Renderer* renderer) {
     SDL_RenderClear(renderer); // Clear the screen with the sky color
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 10, 255); // Set color for the floor
-    if(player.is_jumping) { // If the player is jumping, render a dynamic floor effect
-        for(int i = 0; i < WINDOW_WIDTH; i++) { // Loop through each column of the screen
-            SDL_RenderDrawLine(renderer, i, FLOOR_SIZE + player.z + 0.7 * player.z * cos(((i - WINDOW_WIDTH/8) * FOV / WINDOW_WIDTH) / 4), i, WINDOW_HEIGHT); // Draw floor line with jump offset
-        } 
-    } else { // If the player is not jumping, render a solid floor rectangle
-        SDL_Rect floor_rect = {
-            0, 
-            (int)WINDOW_HEIGHT - FLOOR_SIZE, 
-            (int)WINDOW_WIDTH, 
-            (int)FLOOR_SIZE
-        };
-        SDL_RenderFillRect(renderer, &floor_rect); // Fill the rectangle with the floor color
-    }
+    SDL_Rect floor_rect = {
+        0, 
+        (int)WINDOW_HEIGHT - FLOOR_SIZE, 
+        (int)WINDOW_WIDTH, 
+        (int)FLOOR_SIZE
+    };
+    SDL_RenderFillRect(renderer, &floor_rect); // Fill the rectangle with the floor color
+    
 }
 
 /* 
@@ -251,7 +247,7 @@ int main(void) {
 
     while(game_is_running) { // Main game loop
         process_inputs(); // Handle user inputs (keyboard and mouse)
-        update(); // Update game state (e.g., player position)
+        update(&section); // Update game state (e.g., player position)
         render(renderer, section); // Render the current game frame
     }
 

@@ -3,6 +3,8 @@
 
 #include <SDL2/SDL.h>
 
+#include "algebra.h"
+
 /*
     Structure to hold player movement state.
     This includes whether the player is moving in specific directions or jumping.
@@ -12,7 +14,6 @@ struct move_set {
     int back;   // 1 if moving backward, 0 otherwise
     int right;  // 1 if moving right, 0 otherwise
     int left;   // 1 if moving left, 0 otherwise
-    int jump;   // 1 if the player is jumping, 0 otherwise
 };
 
 /*
@@ -21,11 +22,8 @@ struct move_set {
 */
 struct player {
     double rotation;      // The current rotation of the player (angle)
-    double x;             // The x-coordinate of the player's position
-    double y;             // The y-coordinate of the player's position
-    double z;             // The z-coordinate (height) of the player's position
+    struct point position;             // The y-coordinate of the player's position
     double z_vel;         // The vertical velocity (used for jumping and gravity)
-    int is_jumping;      // 1 if the player is in the air (jumping), 0 otherwise
     double width;         // The width of the player (used for rendering)
     double height;        // The height of the player (used for rendering)
     double velocity[2];   // The velocity vector of the player (x and y components)
@@ -41,12 +39,13 @@ struct player {
 void setup_player(void);
 
 /**
- * Updates player position and state based on elapsed time.
- * Applies gravity and adjusts movement and rotation.
+ * Updates player rotation and return desired position based on elapsed time.
  * 
  * @param delta_time The time elapsed since the last update.
+ * @return struct point The players desired position after elapsed time.
  */
-void update_player(double delta_time);
+struct point update_player(double delta_time);
+
 
 /**
  * Renders the player on the screen.

@@ -62,27 +62,19 @@ int section_add_wall(struct section* section, struct line wall);
  */
 void section_render(struct section* section, SDL_Renderer* renderer, struct player player);
 
-/**
- * Checks for collision between the player and the section's walls.
- * Returns the point of collision if any, or the desired point if no collision occurs.
- * 
- * @param section The section to check for collisions.
- * @param player The player object.
- * @param desired_point The point the player is trying to reach.
- * @return struct point The actual point of collision, or the desired point if no collision occurs.
- */
-struct point section_check_collision(struct section* section, struct player* player, struct point desired_point);
 
 /**
- * Determines if the player is attempting to leave the current section through a door.
+ * Checks for collision between the player and the section's walls.
+ * Also checks if the player is attempting to leave the current section through a door.
  * If a door is found, the function returns the section that the player is entering.
+ * The desired point is updated to be the real destination
  * 
  * @param section The current section.
- * @param player The player object.
- * @param desired_point The point the player is trying to reach.
- * @return struct section* The section the player is entering through the door, or NULL if no door is found.
+ * @param previous_position The point where the player is.
+ * @param desired_position The point the player is trying to reach.
+ * @return struct section* The section the player is at after walking.
  */
-struct section* section_check_leaving(struct section* section, struct player* player, struct point desired_point);
+struct section* section_update(struct section* section, struct point previous_position, struct point* desired_position);
 
 /**
  * Destroys a section and frees allocated resources.
