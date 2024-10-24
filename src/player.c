@@ -10,10 +10,10 @@
 // Global player object
 struct player player;
 
-/*
-    Initializes player properties.
-    Sets initial position, size, and movement attributes.
-*/
+/**
+ * Initializes player properties.
+ * Sets initial position, size, and movement attributes.
+ */
 void setup_player(void) {
     player.width = PLAYER_WIDTH; // Set player width
     player.height = PLAYER_HEIGHT; // Set player height
@@ -43,10 +43,10 @@ void setup_player(void) {
     player.possible_moves.jump     = TRUE;
 }
 
-/*
-    Updates player velocity based on current movement inputs.
-    Calculates direction and speed of movement.
-*/
+/**
+ * Updates player velocity based on current movement inputs.
+ * Calculates direction and speed of movement.
+ */
 void set_move_player(void) {
     player.velocity[0] = 0; // Reset horizontal velocity
     player.velocity[1] = 0; // Reset vertical velocity
@@ -86,12 +86,12 @@ void set_move_player(void) {
     player.velocity[1] *= PLAYER_MOVE_SPEED;
 }
 
-/*
-    Updates player position and state based on elapsed time.
-    Applies gravity and adjusts movement and rotation.
-    Parameters:
-        - double delta_time: time elapsed since last update
-*/
+/**
+ * Updates player position and state based on elapsed time.
+ * Applies gravity and adjusts movement and rotation.
+ * 
+ * @param delta_time The time elapsed since the last update.
+ */
 void update_player(double delta_time) {
     set_move_player(); // Update player velocity based on inputs
 
@@ -114,12 +114,12 @@ void update_player(double delta_time) {
     normalize_angle(&player.angle); // Ensure angle is within 0 to 2π
 }
 
-/*
-    Renders the player on the screen.
-    Draws player as a rectangle and a line indicating facing direction.
-    Parameters:
-        - SDL_Renderer* renderer: the renderer used for drawing
-*/
+/**
+ * Renders the player on the screen.
+ * Draws player as a rectangle and a line indicating facing direction.
+ * 
+ * @param renderer The renderer used for drawing.
+ */
 void render_player(SDL_Renderer* renderer) {
     // Create a rectangle representing the player
     SDL_Rect player_rect = {
@@ -142,13 +142,13 @@ void render_player(SDL_Renderer* renderer) {
     );
 }
 
-/*
-    Rotates player towards a specific point.
-    Calculates the angle from player to the target point.
-    Parameters:
-        - int x: x-coordinate of the target point
-        - int y: y-coordinate of the target point
-*/
+/**
+ * Rotates player towards a specific point.
+ * Calculates the angle from player to the target point.
+ * 
+ * @param x The x-coordinate of the target point.
+ * @param y The y-coordinate of the target point.
+ */
 void rotate_player_towards(int x, int y) {
     player.angle = atan2f(y - player.y, x - player.x); // Compute angle using arctangent
 }
