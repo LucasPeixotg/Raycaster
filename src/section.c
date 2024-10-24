@@ -75,9 +75,9 @@ int section_add_wall(struct section* section, struct line wall) {
  * @param player The player object used for casting rays based on its position and looking angle.
  */
 void section_render(struct section* section, SDL_Renderer* renderer, struct player player) {
-    Uint8 r = 12;
-    Uint8 g = 12;
-    Uint8 b = 12;
+    Uint8 r = 144;
+    Uint8 g = 144;
+    Uint8 b = 144;
 
     double intersection[2]; // Array to store intersection points
     double angle_off =  FOV / RAYS_NUMBER; // Calculate angle step for each ray
@@ -132,7 +132,6 @@ void section_render(struct section* section, SDL_Renderer* renderer, struct play
 
     if(!FIRST_PERSON) {
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Set ray color for debugging
-        
         SDL_RenderDrawLine(renderer, player.x + 10*cos(player.angle) - 10*plane_vector[0], player.y+10*sin(player.angle) - 10*plane_vector[1], player.x + 10*cos(player.angle) + 10*plane_vector[0], player.y+10*sin(player.angle) + 10*plane_vector[1]); // Draw ray from player to intersection
     }
 

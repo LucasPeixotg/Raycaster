@@ -25,7 +25,7 @@ typedef enum {
 #define WINDOW_WIDTH 900         // Window width in pixels
 
 // Player attributes
-#define PLAYER_WIDTH  10         // Player width in pixels
+#define PLAYER_WIDTH  5         // Player width in pixels
 #define PLAYER_HEIGHT 10         // Player height in pixels
 #define PLAYER_MOVE_SPEED 100    // Movement speed (units per second)
 #define PLAYER_ROTATION_SPEED 1.3// Rotation speed (radians per second)

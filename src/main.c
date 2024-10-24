@@ -127,6 +127,37 @@ void update() {
     update_player(delta); // Update player position and physics based on input and delta time
 }
 
+void draw_circle(SDL_Renderer* renderer, int32_t x, int32_t y, int32_t radius)
+{
+    SDL_Vertex vertices[48];
+
+    double dt = 2*PI/16;
+    for(int i = 0; i < 16; i++) {
+        vertices[i*3].color.r = 0;
+        vertices[i*3].color.g = 255;
+        vertices[i*3].color.b = 0;
+        vertices[i*3].color.a = 255;
+        vertices[i*3].position.x = x + radius * cos(dt*i);
+        vertices[i*3].position.y = y + radius * sin(dt*i);
+        
+        vertices[i*3+1].color.r = 0;
+        vertices[i*3+1].color.g = 255;
+        vertices[i*3+1].color.b = 0;
+        vertices[i*3+1].color.a = 255;
+        vertices[i*3+1].position.x = x + radius * cos(dt*(i-1));
+        vertices[i*3+1].position.y = y + radius * sin(dt*(i-1));
+
+        vertices[i*3+2].color.r = 0;
+        vertices[i*3+2].color.g = 255;
+        vertices[i*3+2].color.b = 0;
+        vertices[i*3+2].color.a = 255;
+        vertices[i*3+2].position.x = x;
+        vertices[i*3+2].position.y = y;
+    }
+
+    if(SDL_RenderGeometry(renderer, NULL, vertices, 48, NULL, 0) == -1) printf("ERROR");
+}
+
 /* 
     Renders the 2D top-down map showing lines from the map array.
     Only renders if not in first-person mode.
@@ -136,6 +167,10 @@ void render_map(SDL_Renderer* renderer, struct section* section) {
     for(int i = 0; i < section->wall_count; i++) { // Loop through all lines in the map
         SDL_RenderDrawLine(renderer, section->walls[i].x0, section->walls[i].y0, section->walls[i].xf, section->walls[i].yf); // Draw each line
     }
+    if(!FIRST_PERSON) {
+        draw_circle(renderer, player.x, player.y, PLAYER_WIDTH);
+    }
+
 }
 
 /* 
