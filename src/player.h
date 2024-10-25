@@ -22,12 +22,12 @@ struct move_set {
 */
 struct player {
     double rotation;      // The current rotation of the player (angle)
-    struct point position;             // The y-coordinate of the player's position
+    struct vec2 position;             // The y-coordinate of the player's position
     double z_offset;
     double z_vel;
     double width;         // The width of the player (used for rendering)
     double height;        // The height of the player (used for rendering)
-    double velocity[2];   // The velocity vector of the player (x and y components)
+    struct vec2 velocity;   // The velocity vector of the player (x and y components)
     double angle;         // The angle the player is facing
     struct move_set move_set;    // The current movement states (front, back, right, left, jump)
     struct move_set possible_moves; // The possible moves based on the environment (obstacles, etc.)
@@ -43,9 +43,9 @@ void setup_player(void);
  * Updates player rotation and return desired position based on elapsed time.
  * 
  * @param delta_time The time elapsed since the last update.
- * @return struct point The players desired position after elapsed time.
+ * @return struct vec2 The players desired position after elapsed time.
  */
-struct point update_player(double delta_time);
+struct vec2 update_player(double delta_time);
 
 
 /**
@@ -64,11 +64,11 @@ void render_player(SDL_Renderer* renderer);
 void set_move_player();
 
 /**
- * Rotates player towards a specific point.
- * Calculates the angle from player to the target point.
+ * Rotates player towards a specific vec2.
+ * Calculates the angle from player to the target vec2.
  * 
- * @param x The x-coordinate of the target point.
- * @param y The y-coordinate of the target point.
+ * @param x The x-coordinate of the target vec2.
+ * @param y The y-coordinate of the target vec2.
  */
 void rotate_player_towards(int x, int y);
 

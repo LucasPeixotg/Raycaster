@@ -22,8 +22,8 @@ void setup_player(void) {
     player.position.y = WINDOW_HEIGHT / 2.0f - player.height / 2.0f; // Center player vertically
 
     // Initialize velocity, rotation, and angle
-    player.velocity[0] = 0;
-    player.velocity[1] = 0;
+    player.velocity.x = 0;
+    player.velocity.y = 0;
     player.rotation = 0;
     player.angle = 0;
     player.z_offset = 0;
@@ -47,39 +47,39 @@ void setup_player(void) {
  * Calculates direction and speed of movement.
  */
 void set_move_player(void) {
-    player.velocity[0] = 0; // Reset horizontal velocity
-    player.velocity[1] = 0; // Reset vertical velocity
+    player.velocity.x = 0; // Reset horizontal velocity
+    player.velocity.y = 0; // Reset vertical velocity
 
     // Update velocity based on movement input and direction
     if(player.move_set.right && player.possible_moves.right) {
-        player.velocity[0] += cos(player.angle + PI/2); // Move right
-        player.velocity[1] += sin(player.angle + PI/2);
+        player.velocity.x += cos(player.angle + PI/2); // Move right
+        player.velocity.y += sin(player.angle + PI/2);
     } else if(player.move_set.left && player.possible_moves.left) {
-        player.velocity[0] += cos(player.angle - PI/2); // Move left
-        player.velocity[1] += sin(player.angle - PI/2);
+        player.velocity.x += cos(player.angle - PI/2); // Move left
+        player.velocity.y += sin(player.angle - PI/2);
     }
 
     if(player.move_set.front && player.possible_moves.back) {
-        player.velocity[0] += cos(player.angle); // Move forward
-        player.velocity[1] += sin(player.angle);
+        player.velocity.x += cos(player.angle); // Move forward
+        player.velocity.y += sin(player.angle);
     } else if(player.move_set.back && player.possible_moves.back) {
-        player.velocity[0] += cos(player.angle + PI); // Move backward
-        player.velocity[1] += sin(player.angle + PI);
+        player.velocity.x += cos(player.angle + PI); // Move backward
+        player.velocity.y += sin(player.angle + PI);
     }
 
     // Normalize velocity to ensure consistent movement speed
     normalize_vector2(player.velocity);
-    player.velocity[0] *= PLAYER_MOVE_SPEED;
-    player.velocity[1] *= PLAYER_MOVE_SPEED;
+    player.velocity.x *= PLAYER_MOVE_SPEED;
+    player.velocity.y *= PLAYER_MOVE_SPEED;
 }
 
 /**
  * Updates player rotation and return desired position based on elapsed time.
  * 
  * @param delta_time The time elapsed since the last update.
- * @return struct point The players desired position after elapsed time.
+ * @return struct vec2 The players desired position after elapsed time.
  */
-struct point update_player(double delta_time) {
+struct vec2 update_player(double delta_time) {
     set_move_player(); // Update player velocity based on inputs
 
     // Update player rotation based on mouse input
@@ -88,11 +88,11 @@ struct point update_player(double delta_time) {
 
     // players desired location:
     // Update player position based on velocity and elapsed time
-    struct point position;
-    position.x = player.position.x + player.velocity[0] * delta_time;
-    position.y = player.position.y + player.velocity[1] * delta_time;
+    struct vec2 position;
+    position.x = player.position.x + player.velocity.x * delta_time;
+    position.y = player.position.y + player.velocity.y * delta_time;
 
-    if(player.velocity[0] != 0 && player.velocity[1] != 0) {
+    if(player.velocity.x != 0 && player.velocity.y != 0) {
         if(player.z_vel == 0) player.z_vel = PLAYER_Z_VEL;
 
         player.z_offset += player.z_vel * delta_time;
@@ -135,17 +135,17 @@ void render_player(SDL_Renderer* renderer) {
         renderer, 
         (int) player.position.x, 
         (int) player.position.y, 
-        (int) (player.position.x + cos(player.angle) * player.width), // End point of direction line based on angle
+        (int) (player.position.x + cos(player.angle) * player.width), // End vec2 of direction line based on angle
         (int) (player.position.y + sin(player.angle) * player.width)
     );
 }
 
 /**
- * Rotates player towards a specific point.
- * Calculates the angle from player to the target point.
+ * Rotates player towards a specific vec2.
+ * Calculates the angle from player to the target vec2.
  * 
- * @param x The x-coordinate of the target point.
- * @param y The y-coordinate of the target point.
+ * @param x The x-coordinate of the target vec2.
+ * @param y The y-coordinate of the target vec2.
  */
 void rotate_player_towards(int x, int y) {
     player.angle = atan2f(y - player.position.y, x - player.position.x); // Compute angle using arctangent

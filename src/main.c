@@ -122,9 +122,11 @@ void process_inputs() {
 */
 void update(struct section** section) {
     double delta = get_delta_time(); // Get time elapsed since last frame
-    struct point new_position = update_player(delta); // Update player position and physics based on input and delta time
+    struct vec2 new_position = update_player(delta); // Update player position and physics based on input and delta time
 
-    *section = section_update(*section, player.position, &new_position);
+    *section = section_update(*section, player.position, &new_position, delta);
+    *section = section_update(*section, player.position, &new_position, delta);
+    *section = section_update(*section, player.position, &new_position, delta);
     player.position = new_position;
 }
 

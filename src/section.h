@@ -67,14 +67,14 @@ void section_render(struct section* section, SDL_Renderer* renderer, struct play
  * Checks for collision between the player and the section's walls.
  * Also checks if the player is attempting to leave the current section through a door.
  * If a door is found, the function returns the section that the player is entering.
- * The desired point is updated to be the real destination
+ * The desired vec2 is updated to be the real destination
  * 
  * @param section The current section.
- * @param previous_position The point where the player is.
- * @param desired_position The point the player is trying to reach.
+ * @param previous_position The vec2 where the player is.
+ * @param desired_position The vec2 the player is trying to reach.
  * @return struct section* The section the player is at after walking.
  */
-struct section* section_update(struct section* section, struct point previous_position, struct point* desired_position);
+struct section* section_update(struct section* section, struct vec2 previous_position, struct vec2* desired_position, double delta_time);
 
 /**
  * Destroys a section and frees allocated resources.

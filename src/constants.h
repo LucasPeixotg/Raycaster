@@ -25,7 +25,7 @@ typedef enum {
 #define WINDOW_WIDTH 900         // Window width in pixels
 
 // Player attributes
-#define PLAYER_WIDTH  5             // Player width in pixels
+#define PLAYER_WIDTH 10             // Player width in pixels
 #define PLAYER_HEIGHT 10            // Player height in pixels
 #define MAX_Z_OFFSET 5             // Maximum Z offset for walking ilusion
 #define PLAYER_Z_VEL 50             // Maximum Z offset for walking ilusion
