@@ -23,7 +23,8 @@ struct move_set {
 struct player {
     double rotation;      // The current rotation of the player (angle)
     struct point position;             // The y-coordinate of the player's position
-    double z_vel;         // The vertical velocity (used for jumping and gravity)
+    double z_offset;
+    double z_vel;
     double width;         // The width of the player (used for rendering)
     double height;        // The height of the player (used for rendering)
     double velocity[2];   // The velocity vector of the player (x and y components)

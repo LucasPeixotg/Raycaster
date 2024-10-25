@@ -26,6 +26,8 @@ void setup_player(void) {
     player.velocity[1] = 0;
     player.rotation = 0;
     player.angle = 0;
+    player.z_offset = 0;
+    player.z_vel = PLAYER_Z_VEL;
 
     // Initialize movement state (not moving)
     player.move_set.front = FALSE;
@@ -89,6 +91,24 @@ struct point update_player(double delta_time) {
     struct point position;
     position.x = player.position.x + player.velocity[0] * delta_time;
     position.y = player.position.y + player.velocity[1] * delta_time;
+
+    if(player.velocity[0] != 0 && player.velocity[1] != 0) {
+        if(player.z_vel == 0) player.z_vel = PLAYER_Z_VEL;
+
+        player.z_offset += player.z_vel * delta_time;
+        if((player.z_offset > MAX_Z_OFFSET && player.z_vel > 0) || (player.z_offset < 0 && player.z_vel < 0))
+            player.z_vel = -player.z_vel;
+    } else {
+        if(player.z_offset > 0) {
+            player.z_vel = -PLAYER_Z_VEL;
+            player.z_offset += player.z_vel * delta_time;
+            if(player.z_offset < 0) player.z_offset = 0;
+        } else {
+            player.z_offset = 0;
+
+        }
+    }
+
     return position;
 }
 

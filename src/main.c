@@ -5,7 +5,7 @@
 
 #include "constants.h" // Project constants (screen size, player attributes, etc.)
 #include "player.h"    // Player structure and functions
-#include "algebra.h"     // Utility functions for the game
+#include "algebra.h"   // Utility functions for the game
 #include "gametime.h"  // Time handling functions
 #include "section.h"
 #include "levels.h"
